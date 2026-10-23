@@ -213,44 +213,84 @@ document.addEventListener("DOMContentLoaded", () => {
   // ════════════════════════════════════════════════════════════
   //  F. REPRODUCTOR DE AUDIO
   // ════════════════════════════════════════════════════════════
+  let audioEl = null; // Exponemos para uso en splash
+
   if (DATOS.mostrar.audio && DATOS.archivoAudio.trim() !== "") {
-    const audio = document.getElementById("audio-element");
-    const btnPlay = document.getElementById("btn-play-pause");
+    audioEl = document.getElementById("audio-element");
+    const btnPlay   = document.getElementById("btn-play-pause");
+    const btnMute   = document.getElementById("btn-mute");
     const progressBar = document.getElementById("audio-progress");
     const tiempoActual = document.getElementById("audio-tiempo-actual");
-    const tiempoTotal = document.getElementById("audio-tiempo-total");
+    const tiempoTotal  = document.getElementById("audio-tiempo-total");
 
     setTextContent("audio-cancion-nombre", DATOS.nombreCancion);
     setTextContent("audio-artista", DATOS.artistaCancion);
 
-    if (audio) {
-      audio.src = DATOS.archivoAudio;
+    if (audioEl) {
+      audioEl.src = DATOS.archivoAudio;
 
-      audio.addEventListener("loadedmetadata", () => {
-        tiempoTotal && setTextContent("audio-tiempo-total", formatTiempo(audio.duration));
+      audioEl.addEventListener("loadedmetadata", () => {
+        tiempoTotal && setTextContent("audio-tiempo-total", formatTiempo(audioEl.duration));
       });
 
-      audio.addEventListener("timeupdate", () => {
-        if (!audio.duration) return;
-        const pct = (audio.currentTime / audio.duration) * 100;
+      audioEl.addEventListener("timeupdate", () => {
+        if (!audioEl.duration) return;
+        const pct = (audioEl.currentTime / audioEl.duration) * 100;
         if (progressBar) progressBar.style.width = `${pct}%`;
-        if (tiempoActual) tiempoActual.textContent = formatTiempo(audio.currentTime);
+        if (tiempoActual) tiempoActual.textContent = formatTiempo(audioEl.currentTime);
       });
 
+      // Botón play/pausa
       btnPlay?.addEventListener("click", () => {
-        if (audio.paused) {
-          audio.play();
+        if (audioEl.paused) {
+          audioEl.play();
           btnPlay.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
           btnPlay.setAttribute("aria-label", "Pausar música");
         } else {
-          audio.pause();
+          audioEl.pause();
           btnPlay.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>`;
           btnPlay.setAttribute("aria-label", "Reproducir música");
+        }
+      });
+
+      // Botón silenciar / activar sonido
+      const SVG_CON_SONIDO = `<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>`;
+      const SVG_SILENCIADO = `<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>`;
+
+      btnMute?.addEventListener("click", () => {
+        audioEl.muted = !audioEl.muted;
+        const icoVolumen = document.getElementById("icono-volumen");
+        if (audioEl.muted) {
+          btnMute.classList.add("silenciado");
+          btnMute.setAttribute("aria-label", "Activar sonido");
+          btnMute.setAttribute("title", "Activar sonido");
+          if (icoVolumen) icoVolumen.innerHTML = SVG_SILENCIADO;
+        } else {
+          btnMute.classList.remove("silenciado");
+          btnMute.setAttribute("aria-label", "Silenciar música");
+          btnMute.setAttribute("title", "Silenciar");
+          if (icoVolumen) icoVolumen.innerHTML = SVG_CON_SONIDO;
         }
       });
     }
   } else if (!DATOS.mostrar.audio) {
     hideEl("audio-player-wrap");
+  }
+
+  // ── Función para iniciar audio desde el splash ─────────────
+  // (Se llama desde la lógica del splash al abrir el sobre)
+  function iniciarAudio() {
+    if (!audioEl) return;
+    audioEl.play().then(() => {
+      // Audio iniciado: actualizar ícono del btn-play-pause
+      const btnPlay = document.getElementById("btn-play-pause");
+      if (btnPlay) {
+        btnPlay.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
+        btnPlay.setAttribute("aria-label", "Pausar música");
+      }
+    }).catch(() => {
+      // El navegador puede bloquear el autoplay — está ok, el usuario puede presionar play manual
+    });
   }
 
   // ════════════════════════════════════════════════════════════
@@ -367,6 +407,121 @@ document.addEventListener("DOMContentLoaded", () => {
   //  I. PARTÍCULAS / EFECTO GLITTER DE FONDO
   // ════════════════════════════════════════════════════════════
   crearParticulasGlitter();
+
+  // ════════════════════════════════════════════════════════════
+  //  I2. SPLASH — SOBRE LACRADO DE APERTURA
+  // ════════════════════════════════════════════════════════════
+  (function iniciarSplash() {
+    const splashOverlay = document.getElementById("splash-overlay");
+    const sobreWrap     = document.getElementById("sobre-wrap");
+    const sobreEl       = document.getElementById("sobre");
+    const selloLetra    = document.getElementById("sello-letra");
+
+    // ── Poner la inicial desde datos.js ─────────────────────
+    if (selloLetra && DATOS.inicial) {
+      selloLetra.textContent = DATOS.inicial;
+    }
+
+    if (!splashOverlay || !sobreWrap || !sobreEl) return;
+
+    // ── Partículas del splash (canvas interno) ───────────────
+    const splashCanvas = document.getElementById("splash-canvas");
+    if (splashCanvas) {
+      const ctx = splashCanvas.getContext("2d");
+      const COLS = ["#FFD700", "#FF69B4", "#C0C0C0", "#DA70D6", "#FFF8DC", "#ff2a6d"];
+      let pts = [];
+
+      function resizeSplash() {
+        splashCanvas.width  = window.innerWidth;
+        splashCanvas.height = window.innerHeight;
+      }
+      resizeSplash();
+      window.addEventListener("resize", resizeSplash);
+
+      function mkPt() {
+        return {
+          x: Math.random() * splashCanvas.width,
+          y: Math.random() * splashCanvas.height,
+          s: Math.random() * 2.5 + 0.5,
+          c: COLS[Math.floor(Math.random() * COLS.length)],
+          a: Math.random(),
+          da: (Math.random() * 0.015 + 0.003) * (Math.random() > 0.5 ? 1 : -1),
+          vx: Math.random() * 0.4 - 0.2,
+          vy: Math.random() * 0.4 - 0.2
+        };
+      }
+      for (let i = 0; i < 90; i++) pts.push(mkPt());
+
+      let splashAnimId;
+      function animSplash() {
+        ctx.clearRect(0, 0, splashCanvas.width, splashCanvas.height);
+        pts.forEach(p => {
+          p.a += p.da;
+          if (p.a <= 0 || p.a >= 1) p.da *= -1;
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0 || p.x > splashCanvas.width)  p.x = Math.random() * splashCanvas.width;
+          if (p.y < 0 || p.y > splashCanvas.height) p.y = Math.random() * splashCanvas.height;
+          ctx.save();
+          ctx.globalAlpha = Math.abs(p.a);
+          ctx.fillStyle   = p.c;
+          ctx.shadowColor = p.c;
+          ctx.shadowBlur  = 8;
+          // Estrellita de 4 puntas
+          const r = p.s, ri = r * 0.4;
+          ctx.beginPath();
+          for (let i = 0; i < 4; i++) {
+            const a1 = (i * Math.PI / 2) - Math.PI / 4;
+            const a2 = a1 + Math.PI / 4;
+            ctx.lineTo(p.x + Math.cos(a1) * r, p.y + Math.sin(a1) * r);
+            ctx.lineTo(p.x + Math.cos(a2) * ri, p.y + Math.sin(a2) * ri);
+          }
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        });
+        splashAnimId = requestAnimationFrame(animSplash);
+      }
+      animSplash();
+
+      // Detener animación splash cuando se cierra
+      splashOverlay.addEventListener("transitionend", () => {
+        if (splashOverlay.classList.contains("oculto")) {
+          cancelAnimationFrame(splashAnimId);
+        }
+      }, { once: false });
+    }
+
+    // ── Abrir sobre al hacer clic o Enter ────────────────────
+    let abierto = false;
+    function abrirSobre() {
+      if (abierto) return;
+      abierto = true;
+
+      // 1. Animar apertura del sobre
+      sobreEl.classList.add("abierto");
+
+      // 2. Iniciar la música (gesto de usuario => desbloquea autoplay)
+      setTimeout(() => iniciarAudio(), 200);
+
+      // 3. Ocultar splash con transición suave después de la animación
+      setTimeout(() => {
+        splashOverlay.classList.add("oculto");
+        // Permitir scroll en el body
+        document.body.style.overflow = "";
+      }, 1100);
+    }
+
+    // Bloquear scroll mientras splash está activo
+    document.body.style.overflow = "hidden";
+
+    sobreWrap.addEventListener("click", abrirSobre);
+    sobreWrap.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        abrirSobre();
+      }
+    });
+  })();
 
   // ════════════════════════════════════════════════════════════
   //  J. BOTÓN "VOLVER ARRIBA"

@@ -18,6 +18,7 @@ const DATOS = {
   //  1. DATOS PERSONALES
   // ─────────────────────────────────────────
   nombre: "Magui",                       // Nombre de la festejada
+  inicial: "M",                              // Inicial para el sello del sobre
   nombreCompleto: "Magalí Palermo",         // Nombre completo
   edad: 15,                                  // Edad (se usará en "sus N años")
   mensajePrincipal: "Te invita a celebrar\nsus 15 años",  // Mensaje debajo del nombre
@@ -116,7 +117,7 @@ lugar: {
     regalos:     true,    // Sección de regalos / CBU
     hospedaje:   false,   // Sección de hospedaje (completar datos abajo si es true)
     rsvp:        true,    // Formulario de confirmación de asistencia
-    audio:       false    // Reproductor de música
+    audio:       true     // Reproductor de música
   },
 
   // ─────────────────────────────────────────

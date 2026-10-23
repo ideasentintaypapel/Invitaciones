@@ -92,8 +92,8 @@ a:hover { color: var(--color-oro-claro); }
   align-items: center;
   justify-content: flex-end;
   text-align: center;
-  padding-bottom: 60px;
-  overflow: hidden;
+  padding-bottom: 80px;
+  overflow: clip;
 }
 
 #hero-bg-img {
@@ -124,6 +124,7 @@ a:hover { color: var(--color-oro-claro); }
   z-index: 2;
   width: 100%;
   padding: 0 20px;
+  overflow: visible;
 }
 
 .hero-sobre {
@@ -140,11 +141,12 @@ a:hover { color: var(--color-oro-claro); }
 
 .hero-nombre {
   font-family: var(--font-titulo);
-  font-size: clamp(4rem, 14vw, 9rem);
+  font-size: clamp(2.6rem, 8.5vw, 5rem);
   color: var(--color-blanco);
-  line-height: 1;
+  line-height: 1.4;
   text-shadow: 0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,105,180,0.4);
   opacity: 0;
+  padding-bottom: 0.2em;
   animation: fadeUp 1s 0.6s ease forwards;
   background: var(--gradiente-dorado);
   background-size: 200% auto;
@@ -1081,6 +1083,301 @@ footer {
   color: rgba(255,255,255,0.2);
   letter-spacing: 0.1em;
 }
+
+/* ════════════════════════════════════════════════════════════
+   SPLASH / SOBRE LACRADO
+════════════════════════════════════════════════════════════ */
+#splash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, #1a0028 0%, #0d0010 100%);
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+#splash-overlay.oculto {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#splash-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#splash-contenido {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  text-align: center;
+  padding: 20px;
+}
+
+.splash-pretitulo {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--color-oro);
+  opacity: 0;
+  animation: fadeUp 1s 0.3s ease forwards;
+}
+
+/* ── El sobre ─────────────────────────────────────────────── */
+#sobre-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  cursor: pointer;
+  outline: none;
+}
+
+#sobre-wrap:focus-visible #sobre {
+  box-shadow: 0 0 0 3px rgba(255,215,0,0.7);
+}
+
+#sobre {
+  position: relative;
+  width: clamp(260px, 70vw, 380px);
+  height: clamp(180px, 48vw, 260px);
+  border-radius: 12px;
+  perspective: 900px;
+  animation: floatSobre 3s ease-in-out infinite;
+  transition: filter 0.3s ease;
+  filter: drop-shadow(0 10px 40px rgba(255,105,180,0.3)) drop-shadow(0 0 60px rgba(255,215,0,0.2));
+}
+
+#sobre-wrap:hover #sobre {
+  filter: drop-shadow(0 14px 50px rgba(255,105,180,0.5)) drop-shadow(0 0 80px rgba(255,215,0,0.35));
+}
+
+@keyframes floatSobre {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+/* Cuerpo del sobre */
+.sobre-cuerpo {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, #1e0030, #2a0045, #1a0028);
+  border-radius: 12px;
+  border: 1.5px solid rgba(255,215,0,0.35);
+  overflow: hidden;
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,215,0,0.15);
+}
+
+/* Líneas decorativas del sobre */
+.sobre-lineas {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0.18;
+}
+
+.sobre-linea {
+  width: 70%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--color-oro), transparent);
+  border-radius: 2px;
+}
+
+.sobre-linea.corta { width: 40%; }
+
+/* Triángulo inferior del sobre (flap bottom) */
+.sobre-cuerpo::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(160deg, #25003c 0%, #1a0028 60%, #2a0045 100%);
+  clip-path: polygon(0 100%, 50% 0%, 100% 100%);
+  border-top: 1px solid rgba(255,215,0,0.2);
+}
+
+/* Triángulos laterales del sobre */
+.sobre-cuerpo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, #1a0028 48%, transparent 48%),
+    linear-gradient(225deg, #1a0028 48%, transparent 48%);
+  background-size: 50% 100%;
+  background-position: 0 0, 100% 0;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+}
+
+/* ── Tapa superior del sobre (flap) ─────────────────────── */
+.sobre-tapa {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 54%;
+  transform-origin: top center;
+  transform-style: preserve-3d;
+  z-index: 10;
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estado abierto de la tapa */
+#sobre.abierto .sobre-tapa {
+  transform: rotateX(-180deg);
+}
+
+.sobre-tapa-inner {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, #2d0048 0%, #1e0035 60%, #25003c 100%);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  display: flex;
+  align-items: 40%;
+  justify-content: center;
+  padding-top: 16px;
+  border-bottom: 1px solid rgba(255,215,0,0.2);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ── Sello de lacre ────────────────────────────────────────── */
+.sobre-sello {
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff2a6d, #8b0030, #5a001e);
+  border: 3px solid rgba(255,215,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 20px rgba(255,42,109,0.7),
+    0 0 40px rgba(255,42,109,0.3),
+    0 4px 12px rgba(0,0,0,0.5),
+    inset 0 1px 3px rgba(255,255,255,0.2);
+  z-index: 20;
+  animation: brilloSello 2.5s ease-in-out infinite;
+  transition: transform 0.6s ease, opacity 0.4s ease;
+}
+
+@keyframes brilloSello {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,42,109,0.7), 0 0 40px rgba(255,42,109,0.3), 0 4px 12px rgba(0,0,0,0.5), inset 0 1px 3px rgba(255,255,255,0.2); }
+  50%       { box-shadow: 0 0 30px rgba(255,42,109,0.95), 0 0 60px rgba(255,42,109,0.5), 0 4px 12px rgba(0,0,0,0.5), inset 0 1px 3px rgba(255,255,255,0.25); }
+}
+
+/* La inicial en el lacre */
+.sello-inicial {
+  font-family: var(--font-titulo);
+  font-size: 1.8rem;
+  color: rgba(255, 230, 200, 0.95);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5), 0 0 10px rgba(255,215,0,0.4);
+  line-height: 1;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Sello desaparece cuando el sobre abre */
+#sobre.abierto .sobre-sello {
+  transform: translateX(-50%) scale(0.5);
+  opacity: 0;
+}
+
+/* ── Texto CTA debajo del sobre ─────────────────────────── */
+.splash-cta {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  opacity: 0;
+  animation: fadeUp 1s 0.8s ease forwards;
+  transition: color 0.3s ease;
+}
+
+#sobre-wrap:hover .splash-cta {
+  color: var(--color-oro);
+}
+
+/* Animación de pulso en el CTA */
+.splash-cta::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--color-oro);
+  border-radius: 50%;
+  margin-left: 8px;
+  vertical-align: middle;
+  animation: pulsoPunto 1.5s ease-in-out infinite;
+}
+
+@keyframes pulsoPunto {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.3; transform: scale(0.5); }
+}
+
+/* ── Botón de silenciar audio ───────────────────────────── */
+#btn-mute {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.55);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+#btn-mute:hover {
+  background: rgba(255,215,0,0.12);
+  border-color: rgba(255,215,0,0.4);
+  color: var(--color-oro);
+  transform: scale(1.1);
+}
+
+#btn-mute.silenciado {
+  color: var(--color-rosa);
+  border-color: rgba(255,105,180,0.4);
+  background: rgba(255,105,180,0.08);
+}
+
+#btn-mute svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+
 
 /* ════════════════════════════════════════════════════════════
    BOTÓN VOLVER ARRIBA
