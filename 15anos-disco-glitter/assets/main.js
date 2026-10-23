@@ -31,8 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Imágenes
   setAttr("hero-bg-img", "src", DATOS.imagenes.heroBg);
-  setAttr("foto-principal", "src", DATOS.imagenes.fotoPrincipal);
-  setAttr("foto-principal", "alt", `Foto de ${DATOS.nombre}`);
+  initCarruselFotos();
 
   // Divisores
   document.querySelectorAll(".glitter-divider img").forEach(img => {
@@ -550,6 +549,246 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  // ════════════════════════════════════════════════════════════
+  //  L. CARRUSEL DE FOTOS HORIZONTAL ✨
+  // ════════════════════════════════════════════════════════════
+  function initCarruselFotos() {
+    const track = document.getElementById("carrusel-track");
+    const dotsWrap = document.getElementById("carrusel-dots");
+    const numActual = document.getElementById("carrusel-num-actual");
+    const numTotal = document.getElementById("carrusel-num-total");
+    const btnPrev = document.getElementById("carrusel-btn-prev");
+    const btnNext = document.getElementById("carrusel-btn-next");
+    const hint = document.getElementById("carrusel-hint");
+
+    if (!track) return;
+
+    // Obtener array de fotos
+    let listaFotos = [];
+    if (Array.isArray(DATOS.imagenes.fotos) && DATOS.imagenes.fotos.length > 0) {
+      listaFotos = DATOS.imagenes.fotos;
+    } else if (DATOS.imagenes.fotoPrincipal) {
+      listaFotos = [DATOS.imagenes.fotoPrincipal];
+    }
+
+    if (listaFotos.length === 0) return;
+
+    // Si solo hay una foto, ocultar controles innecesarios
+    if (listaFotos.length === 1) {
+      if (btnPrev) btnPrev.style.display = "none";
+      if (btnNext) btnNext.style.display = "none";
+      if (dotsWrap) dotsWrap.style.display = "none";
+      const nav = document.getElementById("carrusel-nav");
+      if (nav) nav.style.display = "none";
+      if (hint) hint.style.display = "none";
+    }
+
+    // Renderizar slides en el track para garantizar sincronía total con datos.js
+    track.innerHTML = listaFotos.map((src, i) => `
+      <div class="carrusel-slide ${i === 0 ? "active" : ""}" data-index="${i}" role="group" aria-roledescription="slide" aria-label="Foto ${i + 1} de ${listaFotos.length}">
+        <div class="carrusel-card">
+          <img ${i === 0 ? 'id="foto-principal"' : ''} src="${src}" alt="Foto ${i + 1} de ${DATOS.nombre}" loading="${i === 0 ? 'eager' : 'lazy'}">
+          <div class="carrusel-sheen" aria-hidden="true"></div>
+        </div>
+      </div>
+    `).join("");
+
+    // Renderizar dots interactivos
+    if (dotsWrap && listaFotos.length > 1) {
+      dotsWrap.innerHTML = listaFotos.map((_, i) => `
+        <button class="carrusel-dot ${i === 0 ? "active" : ""}" type="button" role="tab" aria-selected="${i === 0 ? "true" : "false"}" aria-label="Ir a foto ${i + 1}" data-index="${i}"></button>
+      `).join("");
+    }
+
+    if (numTotal) numTotal.textContent = String(listaFotos.length);
+    if (numActual) numActual.textContent = "1";
+
+    let currentIndex = 0;
+    let autoPlayTimer = null;
+    let hasInteracted = false;
+
+    function marcarInteraccion() {
+      if (!hasInteracted) {
+        hasInteracted = true;
+        if (hint) hint.style.opacity = "0.75";
+      }
+    }
+
+    function irASlide(index, smooth = true) {
+      const slides = track.querySelectorAll(".carrusel-slide");
+      if (!slides.length) return;
+
+      // Wrap around cíclico
+      if (index < 0) index = slides.length - 1;
+      if (index >= slides.length) index = 0;
+
+      currentIndex = index;
+      const targetSlide = slides[currentIndex];
+      if (targetSlide) {
+        const scrollTo = targetSlide.offsetLeft - (track.clientWidth - targetSlide.offsetWidth) / 2;
+        track.scrollTo({
+          left: Math.max(0, scrollTo),
+          behavior: smooth ? "smooth" : "auto"
+        });
+      }
+      actualizarUI(currentIndex);
+    }
+
+    function actualizarUI(index) {
+      const slides = track.querySelectorAll(".carrusel-slide");
+      slides.forEach((s, i) => {
+        s.classList.toggle("active", i === index);
+      });
+
+      const dots = dotsWrap ? dotsWrap.querySelectorAll(".carrusel-dot") : [];
+      dots.forEach((d, i) => {
+        const isAct = i === index;
+        d.classList.toggle("active", isAct);
+        d.setAttribute("aria-selected", isAct ? "true" : "false");
+      });
+
+      if (numActual) numActual.textContent = String(index + 1);
+    }
+
+    // Detección automática al deslizar en pantallas táctiles (Touch swipe)
+    let scrollTimeout;
+    track.addEventListener("scroll", () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const slides = track.querySelectorAll(".carrusel-slide");
+        if (!slides.length) return;
+        const trackCenter = track.scrollLeft + track.clientWidth / 2;
+        let closestIndex = 0;
+        let minDiff = Infinity;
+        slides.forEach((s, i) => {
+          const slideCenter = s.offsetLeft + s.offsetWidth / 2;
+          const diff = Math.abs(trackCenter - slideCenter);
+          if (diff < minDiff) {
+            minDiff = diff;
+            closestIndex = i;
+          }
+        });
+        if (closestIndex !== currentIndex) {
+          currentIndex = closestIndex;
+          actualizarUI(currentIndex);
+        }
+      }, 50);
+    }, { passive: true });
+
+    // Botones de navegación
+    if (btnPrev) {
+      btnPrev.addEventListener("click", () => {
+        marcarInteraccion();
+        detenerAutoPlay();
+        irASlide(currentIndex - 1);
+      });
+    }
+
+    if (btnNext) {
+      btnNext.addEventListener("click", () => {
+        marcarInteraccion();
+        detenerAutoPlay();
+        irASlide(currentIndex + 1);
+      });
+    }
+
+    // Clicks en dots
+    if (dotsWrap) {
+      dotsWrap.addEventListener("click", (e) => {
+        const dot = e.target.closest(".carrusel-dot");
+        if (!dot) return;
+        const idx = parseInt(dot.dataset.index, 10);
+        if (!isNaN(idx)) {
+          marcarInteraccion();
+          detenerAutoPlay();
+          irASlide(idx);
+        }
+      });
+    }
+
+    // Arrastre con mouse en computadoras (Desktop Drag)
+    let isMouseDown = false;
+    let startX = 0;
+    let scrollStart = 0;
+    let hasDragged = false;
+
+    track.addEventListener("mousedown", (e) => {
+      isMouseDown = true;
+      hasDragged = false;
+      startX = e.pageX - track.offsetLeft;
+      scrollStart = track.scrollLeft;
+      track.classList.add("dragging");
+      marcarInteraccion();
+      detenerAutoPlay();
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (!isMouseDown) return;
+      isMouseDown = false;
+      track.classList.remove("dragging");
+      if (hasDragged) {
+        irASlide(currentIndex);
+      }
+    });
+
+    track.addEventListener("mousemove", (e) => {
+      if (!isMouseDown) return;
+      e.preventDefault();
+      const x = e.pageX - track.offsetLeft;
+      const walk = (x - startX) * 1.35;
+      if (Math.abs(walk) > 6) hasDragged = true;
+      track.scrollLeft = scrollStart - walk;
+    });
+
+    // Accesibilidad teclado
+    track.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        marcarInteraccion();
+        detenerAutoPlay();
+        irASlide(currentIndex - 1);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        marcarInteraccion();
+        detenerAutoPlay();
+        irASlide(currentIndex + 1);
+      }
+    });
+
+    // Touch pausa autoplay
+    track.addEventListener("touchstart", () => {
+      marcarInteraccion();
+      detenerAutoPlay();
+    }, { passive: true });
+
+    // Autoplay suave cada 5.5s
+    function iniciarAutoPlay() {
+      if (listaFotos.length <= 1) return;
+      detenerAutoPlay();
+      autoPlayTimer = setInterval(() => {
+        irASlide(currentIndex + 1);
+      }, 5500);
+    }
+
+    function detenerAutoPlay() {
+      if (autoPlayTimer) {
+        clearInterval(autoPlayTimer);
+        autoPlayTimer = null;
+      }
+    }
+
+    track.addEventListener("mouseenter", detenerAutoPlay);
+    track.addEventListener("mouseleave", () => {
+      if (!isMouseDown) iniciarAutoPlay();
+    });
+
+    window.addEventListener("resize", () => {
+      irASlide(currentIndex, false);
+    });
+
+    iniciarAutoPlay();
+  }
 
   // ════════════════════════════════════════════════════════════
   //  HELPERS (funciones utilitarias)

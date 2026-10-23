@@ -19,7 +19,7 @@ Optimizada para que la diseñadora gráfica solo toque **`datos.js`** y reemplac
     └── img/
         ├── hero_bg.png          ← Fondo hero (reemplazar)
         ├── disco_ball.png       ← Bola disco decorativa (reemplazar)
-        ├── foto_quinceañera.png ← Foto de la festejada (reemplazar)
+        ├── foto_1.jpg, foto_2.jpg, foto_3.jpg ← Fotos del carrusel (reemplazar o sumar en datos.js)
         └── glitter_divider.png  ← Divisor decorativo (reemplazar)
 ```
 
@@ -48,7 +48,7 @@ Copiá las imágenes del cliente en `assets/img/` con los mismos nombres:
 |---|---|---|
 | `hero_bg.png` | 1920×1080px | Fondo de pantalla completa |
 | `disco_ball.png` | 400×400px (PNG con fondo transparente ideal) | Decoración flotante |
-| `foto_quinceañera.png` | 400×500px | Foto vertical de la festejada |
+| `foto_1.jpg`, `foto_2.jpg`, `foto_3.jpg` | 480×800px+ vertical | Fotos del carrusel de la festejada (configurar en datos.js) |
 | `glitter_divider.png` | 800×40px | Divisor entre secciones |
 
 ### 3. Activar/desactivar secciones

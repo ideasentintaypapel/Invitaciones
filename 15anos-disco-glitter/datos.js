@@ -58,7 +58,12 @@ lugar: {
   imagenes: {
     heroBg:   "assets/img/hero_bg.png",           // Fondo de la sección principal
     discoBall: "assets/img/disco_ball.png",        // Bola de disco decorativa
-    fotoPrincipal: "assets/img/foto_quinceañera.png", // Foto de la festejada
+    fotoPrincipal: "assets/img/foto_1.jpg",        // Foto principal / de respaldo
+    fotos: [                                       // Carrusel horizontal de fotos de la festejada
+      "assets/img/foto_1.jpg",
+      "assets/img/foto_2.jpg",
+      "assets/img/foto_3.jpg"
+    ],
     divisor: "assets/img/glitter_divider.png"     // Divisor decorativo
   },
 

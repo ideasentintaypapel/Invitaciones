@@ -102,13 +102,77 @@
   <main>
 
     <!-- ════════════════════════════════════════════════════
-         FOTO DE LA FESTEJADA
+         FOTOS DE LA FESTEJADA — CARRUSEL HORIZONTAL
     ════════════════════════════════════════════════════ -->
-    <section id="seccion-foto" class="seccion" aria-label="Foto de la festejada">
+    <section id="seccion-foto" class="seccion" aria-label="Fotos de la festejada">
       <div class="wrapper">
-        <div class="foto-frame" data-animate="fadeIn">
-          <img id="foto-principal" src="assets/img/foto_quinceañera.png" alt="Foto de la festejada">
-          <div class="foto-glow" aria-hidden="true"></div>
+        <div class="carrusel-wrapper" data-animate="fadeIn">
+
+          <!-- Indicador visual de deslizar (Swipe Hint) -->
+          <div class="carrusel-hint" id="carrusel-hint" aria-hidden="true">
+            <span class="hint-arrow hint-arrow-left">‹‹</span>
+            <span class="hint-sparkle">✨</span>
+            <span class="hint-text">Deslizá para ver más fotos</span>
+            <span class="hint-sparkle">✨</span>
+            <span class="hint-arrow hint-arrow-right">››</span>
+          </div>
+
+          <!-- Contenedor del Carrusel con fotos y botones -->
+          <div class="carrusel-container">
+            <!-- Glow ambiental decorativo -->
+            <div class="foto-glow" aria-hidden="true"></div>
+
+            <div class="carrusel-track-wrapper">
+              <!-- Botón Anterior -->
+              <button class="carrusel-btn prev" id="carrusel-btn-prev" aria-label="Foto anterior" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+
+              <!-- Pista deslizable con soporte Touch / Drag / Snap -->
+              <div class="carrusel-track" id="carrusel-track" role="region" aria-roledescription="carrusel" aria-label="Galería de fotos de la festejada" tabindex="0">
+                <div class="carrusel-slide active" data-index="0" role="group" aria-roledescription="slide" aria-label="Foto 1 de 3">
+                  <div class="carrusel-card">
+                    <img id="foto-principal" src="assets/img/foto_1.jpg" alt="Foto de la festejada 1" loading="eager">
+                    <div class="carrusel-sheen" aria-hidden="true"></div>
+                  </div>
+                </div>
+                <div class="carrusel-slide" data-index="1" role="group" aria-roledescription="slide" aria-label="Foto 2 de 3">
+                  <div class="carrusel-card">
+                    <img src="assets/img/foto_2.jpg" alt="Foto de la festejada 2" loading="lazy">
+                    <div class="carrusel-sheen" aria-hidden="true"></div>
+                  </div>
+                </div>
+                <div class="carrusel-slide" data-index="2" role="group" aria-roledescription="slide" aria-label="Foto 3 de 3">
+                  <div class="carrusel-card">
+                    <img src="assets/img/foto_3.jpg" alt="Foto de la festejada 3" loading="lazy">
+                    <div class="carrusel-sheen" aria-hidden="true"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botón Siguiente -->
+              <button class="carrusel-btn next" id="carrusel-btn-next" aria-label="Siguiente foto" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Controles inferiores: Indicadores de puntos y Contador -->
+          <div class="carrusel-nav" id="carrusel-nav" aria-label="Navegación de fotos">
+            <div class="carrusel-dots" id="carrusel-dots" role="tablist" aria-label="Seleccionar foto">
+              <button class="carrusel-dot active" role="tab" aria-selected="true" aria-label="Ir a foto 1" data-index="0"></button>
+              <button class="carrusel-dot" role="tab" aria-selected="false" aria-label="Ir a foto 2" data-index="1"></button>
+              <button class="carrusel-dot" role="tab" aria-selected="false" aria-label="Ir a foto 3" data-index="2"></button>
+            </div>
+            <div class="carrusel-contador" id="carrusel-contador" aria-live="polite">
+              <span id="carrusel-num-actual">1</span> / <span id="carrusel-num-total">3</span>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
