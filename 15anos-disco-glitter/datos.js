@@ -85,9 +85,19 @@ lugar: {
   //  6. DRESSCODE
   // ─────────────────────────────────────────
   dresscode: {
-    titulo: "Dresscode",
-    descripcion: "Elegante — Glamour Disco ✨",
-    detalle: "Brillos, lentejuelas y colores vibrantes son bienvenidos. ¡Más brillo, mejor!"
+    titulo: "Elegante",
+    descripcion: "Ponete tu mejor outfit para brillar con nosotros en esta noche tan especial. ✨",
+    detalle: "PD: Te pedimos Porfa que evites el [Azul / Blanco / Dorado] 😉",
+
+    // Bolitas de color de la paleta:
+    // Poné `mostrarColores: false` para ocultarlas por completo.
+    // O poné `mostrarColores: true` para mostrarlas con los colores que elijas abajo.
+    mostrarColores: false,
+    colores: [
+      { hex: "#003366", nombre: "Azul" },
+      { hex: "#FFFFFF", nombre: "Blanco" },
+      { hex: "#FFD700", nombre: "Dorado" }
+    ]
   },
 
   // ─────────────────────────────────────────
@@ -101,12 +111,19 @@ lugar: {
   },
 
   // ─────────────────────────────────────────
-  //  8. FORMULARIO RSVP
+  //  8. FORMULARIO RSVP (CONFIRMACIÓN DE ASISTENCIA)
   // ─────────────────────────────────────────
   rsvp: {
-    // URL del Google Apps Script para enviar datos a Google Sheets
-    // Déjala en "" para mostrar el formulario en modo demo (sin envío real)
+    // 📊 Link de la planilla de Google Sheets que compartirás con tu cliente:
+    // (Cambiá este enlace o el ID para cada nueva familia/cliente)
+    planillaUrl: "https://docs.google.com/spreadsheets/d/1J0BQUZKF3GUOkhNzZHJ4z_91pownx6k5j_gQawxXPDw/edit?usp=sharing",
+    sheetId: "1J0BQUZKF3GUOkhNzZHJ4z_91pownx6k5j_gQawxXPDw",
+
+    // 🔗 URL de la Aplicación Web de Google Apps Script:
+    // (Pegá aquí la URL que te da Google al implementar el Apps Script en la planilla)
+    // Dejá en "" para probar en modo demo local sin enviar a la planilla
     googleScriptUrl: "",
+
     fechaLimite: "2026-12-10",                 // Fecha límite para confirmar
     fechaLimiteTexto: "10 de Diciembre de 2026"
   },
@@ -116,7 +133,7 @@ lugar: {
   // ─────────────────────────────────────────
   mostrar: {
     countdown:   true,    // Cuenta regresiva
-    cronograma:  true,    // Línea de tiempo / programa
+    cronograma:  false,    // Línea de tiempo / programa
     clima:       true,    // Widget de clima (solo visible < 7 días del evento)
     dresscode:   true,    // Sección dress code
     regalos:     true,    // Sección de regalos / CBU
@@ -147,12 +164,18 @@ lugar: {
   },
 
   // ─────────────────────────────────────────
-  //  12. CLIMA (API de OpenWeatherMap — mock si no hay API key)
+  //  12. CLIMA (Pronóstico real automático sin necesidad de API key)
   // ─────────────────────────────────────────
   clima: {
-    apiKey: "",                               // Tu API key de openweathermap.org (gratis)
-    ciudad: "Buenos Aires",
-    codigoPais: "AR"                          // Código ISO del país
+    ciudad: "Ituzaingó",                      // Ciudad del evento
+    provincia: "Buenos Aires",                // Provincia
+    codigoPais: "AR",                         // Código ISO del país
+    lat: -34.6604,                            // Latitud de Quinta La Soñada (Ituzaingó)
+    lon: -58.6662,                            // Longitud
+    // true: muestra el clima en vivo o pronóstico siempre (ideal para pruebas).
+    // false: solo se muestra en la semana del evento (a 7 días o menos).
+    siempreVisible: false,
+    apiKey: ""                                // Opcional: si preferís usar OpenWeatherMap con tu key personal
   }
 
 };

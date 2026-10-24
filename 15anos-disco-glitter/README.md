@@ -70,52 +70,98 @@ mostrar: {
 
 ---
 
-## 🔗 Conectar el RSVP a Google Sheets
+## 🔗 Conectar el RSVP a Google Sheets (Guardado automático)
 
-1. Creá una hoja de cálculo en Google Sheets.
-2. En **Extensiones > Apps Script**, pegá el siguiente código:
+Cada confirmación guardará: **Familia / Apellido**, **asistirá** (Sí / No) y **cantidad personas** en la planilla de cálculo.
+
+### Paso a paso:
+
+1. Abrí tu planilla de Google Sheets (por ejemplo la que compartiste).
+2. En el menú superior, hacé clic en **Extensiones > Apps Script**.
+3. Borrá lo que haya y pegá este código:
 
 ```javascript
 function doPost(e) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  const data = e.parameter;
-  sheet.appendRow([
-    data.timestamp,
-    data.nombre,
-    data.asistencia,
-    data.cantidadPersonas,
-    data.mensaje
-  ]);
-  return ContentService.createTextOutput("OK");
+  var lock = LockService.getScriptLock();
+  lock.tryLock(10000);
+
+  try {
+    var data = e.parameter || {};
+    var sheet;
+
+    // Si se envía sheetId o sheetUrl en datos.js, permite guardar en planillas distintas para cada cliente
+    if (data.sheetId && data.sheetId.trim() !== "") {
+      sheet = SpreadsheetApp.openById(data.sheetId.trim()).getActiveSheet();
+    } else if (data.sheetUrl && data.sheetUrl.trim() !== "") {
+      sheet = SpreadsheetApp.openByUrl(data.sheetUrl.trim()).getActiveSheet();
+    } else {
+      sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    }
+
+    var familia = data.familia || data.nombre || "Anónimo";
+    var asistira = data.asistira || data.asistencia || "Sí";
+    var cantidad = (asistira.toLowerCase() === "no") ? "0" : (data.cantidad || data.cantidadPersonas || "1");
+
+    // Escribe en las 3 columnas: Familia | asistirá | cantidad personas
+    sheet.appendRow([
+      familia,
+      asistira,
+      cantidad
+    ]);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ result: "success" }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ result: "error", error: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } finally {
+    lock.releaseLock();
+  }
 }
 ```
 
-3. Publicá el script como **"Aplicación web"** (ejecutar como yo, acceso para todos).
-4. Copiá la URL y pegala en `datos.js`:
+4. Hacé clic en **Implementar > Nueva implementación** (botón azul arriba a la derecha).
+5. Seleccioná el tipo: **Aplicación web**.
+   - **Descripción**: RSVP Quinceañera
+   - **Ejecutar como**: `Yo` (tu cuenta de Google)
+   - **Quién tiene acceso**: `Cualquiera` (Anyone)  ← *¡Muy importante para que las visitas puedan enviar su respuesta!*
+6. Hacé clic en **Implementar**, autorizá los permisos y copiá la **URL de la aplicación web** (termina en `/exec`).
+7. Pegá esa URL en `datos.js` en el campo `googleScriptUrl`:
 
 ```js
 rsvp: {
-  googleScriptUrl: "https://script.google.com/macros/s/TU_ID_AQUI/exec"
+  planillaUrl: "https://docs.google.com/spreadsheets/d/TU_ID_AQUI/edit?usp=sharing",
+  sheetId: "TU_ID_AQUI",
+  googleScriptUrl: "https://script.google.com/macros/s/AKfycb.../exec"
 }
 ```
+
+> **Para futuros clientes:**  
+> Sólo creás una nueva planilla de cálculo y cambiás el `sheetId` o `planillaUrl` en `datos.js`. Con el mismo Apps Script podés guardar respuestas en la planilla que quieras siempre que tu cuenta tenga acceso a ella.
 
 ---
 
-## 🌤 Conectar el clima a OpenWeatherMap
+## 🌤 Pronóstico del clima (automático en vivo)
 
-1. Creá una cuenta gratis en [openweathermap.org](https://openweathermap.org/api)
-2. Obtené tu API key gratuita.
-3. En `datos.js`:
+El widget de clima ahora funciona automáticamente en tiempo real utilizando **Open-Meteo** (no requiere registro ni API key).
+
+En `datos.js`:
 
 ```js
 clima: {
-  apiKey: "tu_api_key_aqui",
-  ciudad: "Buenos Aires",
-  codigoPais: "AR"
+  ciudad: "Ituzaingó",
+  provincia: "Buenos Aires",
+  lat: -34.6604,              // Coordenadas del salón (opcional, para máxima precisión)
+  lon: -58.6662,
+  siempreVisible: true        // true para pruebas; false para que solo aparezca a 7 días o menos
 }
 ```
 
-> **Nota:** El widget de clima solo aparece si faltan **7 días o menos** para el evento. Sin API key funciona en modo demo.
+> **Nota:** La precisión de pronósticos meteorológicos reales alcanza hasta 7 días hacia adelante. Si faltan más de 7 días y `siempreVisible` está en `true`, se muestra el clima actual en vivo de la zona con una nota explicativa. También podés conectar OpenWeatherMap si tenés tu propia API key.
 
 ---
 

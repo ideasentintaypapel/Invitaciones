@@ -292,14 +292,8 @@
           <p class="dresscode-descripcion" id="dresscode-descripcion">Elegante — Glamour Disco ✨</p>
           <p class="dresscode-detalle" id="dresscode-detalle">Brillos, lentejuelas y colores vibrantes son bienvenidos.</p>
 
-          <!-- Paleta de colores sugerida (decorativa) -->
-          <div class="paleta-colores" aria-label="Paleta de colores sugerida">
-            <div class="color-chip" style="background:#FFD700; color: #FFD700;" title="Dorado"></div>
-            <div class="color-chip" style="background:#FF69B4; color: #FF69B4;" title="Rosa"></div>
-            <div class="color-chip" style="background:#C0C0C0; color: #C0C0C0;" title="Plateado"></div>
-            <div class="color-chip" style="background:#D580FF; color: #D580FF;" title="Lila"></div>
-            <div class="color-chip" style="background:#FFFFFF; color: #aaa;" title="Blanco" style="border: 2px solid #aaa;"></div>
-          </div>
+          <!-- Paleta de colores sugerida o a evitar (generada dinámicamente desde datos.js) -->
+          <div class="paleta-colores" id="paleta-colores" aria-label="Paleta de colores del dresscode"></div>
         </div>
       </div>
     </section>
@@ -315,7 +309,7 @@
       <div class="wrapper">
         <div class="seccion-titulo" data-animate="fadeUp">
           <h2 id="clima-heading">El Tiempo 🌤</h2>
-          <p class="subtitulo">Pronóstico para la noche del evento</p>
+          <p class="subtitulo" id="clima-subtitulo">Pronóstico para la noche del evento</p>
         </div>
 
         <div class="card clima-card" data-animate="fadeIn">
@@ -449,43 +443,48 @@
 
           <form id="rsvp-form" novalidate aria-label="Formulario de confirmación de asistencia">
 
-            <!-- Nombre -->
+            <!-- Apellido / Familia -->
             <div class="form-grupo">
-              <label class="form-label" for="rsvp-nombre">Tu nombre completo *</label>
+              <label class="form-label" for="rsvp-nombre">Apellido de la familia (o tu nombre) *</label>
               <input
                 class="form-input"
                 type="text"
                 id="rsvp-nombre"
                 name="rsvp-nombre"
-                placeholder="Ej: María González"
+                placeholder="Ej: Familia Rodríguez / Pérez"
                 required
-                autocomplete="name">
+                autocomplete="family-name">
             </div>
 
             <!-- Asistencia -->
             <div class="form-grupo">
-              <label class="form-label">¿Confirmás tu asistencia? *</label>
+              <label class="form-label">¿Confirmás asistencia? *</label>
               <div class="radio-grupo" role="radiogroup" aria-required="true">
                 <label class="radio-opcion">
-                  <input type="radio" name="rsvp-asistencia" value="si" required>
-                  <span>✅ Sí, voy a ir</span>
+                  <input type="radio" name="rsvp-asistencia" value="Sí" required>
+                  <span>✅ Sí, asistiremos</span>
                 </label>
                 <label class="radio-opcion">
-                  <input type="radio" name="rsvp-asistencia" value="no">
-                  <span>❌ No puedo ir</span>
+                  <input type="radio" name="rsvp-asistencia" value="No">
+                  <span>❌ No podremos asistir</span>
                 </label>
               </div>
             </div>
 
-            <!-- Cantidad de personas (solo si va) -->
+            <!-- Cantidad de personas que representa (visible solo si asiste) -->
             <div class="form-grupo" id="rsvp-cantidad-wrap" style="display:none;">
-              <label class="form-label" for="rsvp-cantidad">¿Cuántas personas? (incluídote)</label>
+              <label class="form-label" for="rsvp-cantidad">Cantidad de personas que representa *</label>
               <select class="form-select" id="rsvp-cantidad" name="rsvp-cantidad">
-                <option value="1">Solo yo (1 persona)</option>
+                <option value="1">1 persona</option>
                 <option value="2">2 personas</option>
                 <option value="3">3 personas</option>
                 <option value="4">4 personas</option>
                 <option value="5">5 personas</option>
+                <option value="6">6 personas</option>
+                <option value="7">7 personas</option>
+                <option value="8">8 personas</option>
+                <option value="9">9 personas</option>
+                <option value="10">10 o más personas</option>
               </select>
             </div>
 
@@ -496,13 +495,13 @@
                 class="form-textarea"
                 id="rsvp-mensaje"
                 name="rsvp-mensaje"
-                placeholder="¡Escribile unas palabras a Valentina! 💕"
+                placeholder="¡Escribile unas palabras a la festejada! 💕"
                 maxlength="500"></textarea>
             </div>
 
             <div class="btn-group">
               <button type="submit" class="btn btn-dorado" id="rsvp-submit-btn">
-                💌 Confirmar asistencia
+                💌 Confirmar respuesta
               </button>
             </div>
           </form>
@@ -511,7 +510,7 @@
           <div id="rsvp-success" role="alert">
             <span class="success-icon">🎉</span>
             <h3>¡Gracias por confirmar!</h3>
-            <p>Valentina ya sabe que vas a estar en su noche especial. ¡Te esperamos!</p>
+            <p id="rsvp-success-texto">Tu respuesta ya quedó registrada. ¡Muchas gracias!</p>
           </div>
 
           <div id="rsvp-error" role="alert">

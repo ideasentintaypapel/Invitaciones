@@ -50,6 +50,23 @@ document.addEventListener("DOMContentLoaded", () => {
   setTextContent("dresscode-descripcion", DATOS.dresscode.descripcion);
   setTextContent("dresscode-detalle", DATOS.dresscode.detalle);
 
+  const paletaContainer = document.getElementById("paleta-colores");
+  if (paletaContainer) {
+    const mostrarColores = DATOS.dresscode.mostrarColores ?? (Array.isArray(DATOS.dresscode.colores) && DATOS.dresscode.colores.length > 0);
+    if (mostrarColores && Array.isArray(DATOS.dresscode.colores) && DATOS.dresscode.colores.length > 0) {
+      paletaContainer.innerHTML = DATOS.dresscode.colores.map(c => {
+        const hex = typeof c === "string" ? c : (c.hex || c.color || "#FFD700");
+        const nombre = typeof c === "string" ? c : (c.nombre || "");
+        const isWhite = hex.toLowerCase() === "#ffffff" || hex.toLowerCase() === "#fff";
+        const borderStyle = isWhite ? "border: 2px solid #aaa;" : "";
+        return `<div class="color-chip" style="background:${hex}; color: ${hex}; ${borderStyle}" title="${nombre}" aria-label="${nombre}"></div>`;
+      }).join("");
+      paletaContainer.style.display = "";
+    } else {
+      paletaContainer.style.display = "none";
+    }
+  }
+
   // ── Regalos ─────────────────────────────────────────────────
   setTextContent("regalos-texto", DATOS.regalos.texto);
   setTextContent("regalos-alias", DATOS.regalos.alias);
@@ -158,21 +175,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ════════════════════════════════════════════════════════════
-  //  E. WIDGET DE CLIMA
+  //  E. WIDGET DE CLIMA (Pronóstico real automático sin API key)
   // ════════════════════════════════════════════════════════════
   const climaSection = document.getElementById("seccion-clima");
 
   if (DATOS.mostrar.clima && climaSection) {
     const fechaEvento = new Date(DATOS.fechaEvento);
     const ahora = new Date();
-    const diasRestantes = Math.ceil((fechaEvento - ahora) / (1000 * 60 * 60 * 24));
+    const diffMs = fechaEvento - ahora;
+    const diasRestantes = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    const siempreVisible = DATOS.clima && DATOS.clima.siempreVisible === true;
 
-    if (diasRestantes > 7) {
-      // No mostrar si faltan más de 7 días
+    // Si faltan más de 7 días y no está configurado siempreVisible, ocultar sección
+    if (diasRestantes > 7 && !siempreVisible) {
       hideEl("seccion-clima");
     } else if (DATOS.clima.apiKey && DATOS.clima.apiKey.trim() !== "") {
-      // ── Llamada real a OpenWeatherMap ──────────────────────
-      const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(DATOS.clima.ciudad)},${DATOS.clima.codigoPais}&appid=${DATOS.clima.apiKey}&units=metric&lang=es`;
+      // ── Opción A: OpenWeatherMap (si el usuario ingresó su propia key) ──
+      const ciudad = DATOS.clima.ciudad || "Ituzaingó";
+      const pais = DATOS.clima.codigoPais || "AR";
+      const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(ciudad)},${pais}&appid=${DATOS.clima.apiKey}&units=metric&lang=es`;
       fetch(url)
         .then(r => r.json())
         .then(data => {
@@ -191,19 +212,123 @@ document.addEventListener("DOMContentLoaded", () => {
           setTextContent("clima-descripcion", capitalize(descripcion));
           setTextContent("clima-temp", `${temp}°C`);
           setTextContent("clima-sensacion", `Sensación: ${sensacion}°C`);
-          setTextContent("clima-ciudad", DATOS.clima.ciudad);
+          setTextContent("clima-ciudad", ciudad + (DATOS.clima.provincia ? `, ${DATOS.clima.provincia}` : ""));
           showEl("seccion-clima");
         })
         .catch(() => hideEl("seccion-clima"));
     } else {
-      // ── Mock de clima (para demo sin API key) ──────────────
-      setTextContent("clima-icono", "🌟");
-      setTextContent("clima-descripcion", "Noche estrellada");
-      setTextContent("clima-temp", "22°C");
-      setTextContent("clima-sensacion", "Sensación: 21°C");
-      setTextContent("clima-ciudad", DATOS.clima.ciudad);
-      // Solo mostrar en demo si faltan 7 días o menos
-      showEl("seccion-clima");
+      // ── Opción B: Open-Meteo (Pronóstico real en vivo, 100% gratuito sin API key) ──
+      const WMO_CODES = {
+        0:  { desc: "Cielo despejado", iconNoche: "✨", iconDia: "☀️" },
+        1:  { desc: "Mayormente despejado", iconNoche: "🌙", iconDia: "🌤️" },
+        2:  { desc: "Parcialmente nublado", iconNoche: "⛅", iconDia: "⛅" },
+        3:  { desc: "Cielo nublado", iconNoche: "☁️", iconDia: "☁️" },
+        45: { desc: "Niebla", iconNoche: "🌫️", iconDia: "🌫️" },
+        48: { desc: "Neblina", iconNoche: "🌫️", iconDia: "🌫️" },
+        51: { desc: "Llovizna ligera", iconNoche: "🌦️", iconDia: "🌦️" },
+        53: { desc: "Llovizna moderada", iconNoche: "🌧️", iconDia: "🌧️" },
+        55: { desc: "Llovizna densa", iconNoche: "🌧️", iconDia: "🌧️" },
+        61: { desc: "Lluvia ligera", iconNoche: "🌧️", iconDia: "🌧️" },
+        63: { desc: "Lluvia moderada", iconNoche: "🌧️", iconDia: "🌧️" },
+        65: { desc: "Lluvia intensa", iconNoche: "🌧️", iconDia: "🌧️" },
+        71: { desc: "Nevada ligera", iconNoche: "🌨️", iconDia: "🌨️" },
+        73: { desc: "Nevada", iconNoche: "❄️", iconDia: "❄️" },
+        75: { desc: "Nevada fuerte", iconNoche: "❄️", iconDia: "❄️" },
+        80: { desc: "Chubascos ligeros", iconNoche: "🌦️", iconDia: "🌦️" },
+        81: { desc: "Chubascos moderados", iconNoche: "🌧️", iconDia: "🌧️" },
+        82: { desc: "Chubascos intensos", iconNoche: "⛈️", iconDia: "⛈️" },
+        95: { desc: "Tormenta eléctrica", iconNoche: "⛈️", iconDia: "⛈️" },
+        96: { desc: "Tormenta con granizo", iconNoche: "⛈️", iconDia: "⛈️" },
+        99: { desc: "Tormenta severa", iconNoche: "⛈️", iconDia: "⛈️" }
+      };
+
+      async function consultarClimaReal() {
+        try {
+          let lat = DATOS.clima.lat;
+          let lon = DATOS.clima.lon;
+          let ciudadNombre = DATOS.clima.ciudad || "Ituzaingó";
+
+          // Si faltan coordenadas pero hay ciudad, geocodificar con Open-Meteo
+          if (lat === undefined || lon === undefined) {
+            const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(ciudadNombre)}&count=1&language=es`);
+            const geoData = await geoRes.json();
+            if (geoData.results && geoData.results.length > 0) {
+              lat = geoData.results[0].latitude;
+              lon = geoData.results[0].longitude;
+              ciudadNombre = geoData.results[0].name;
+            } else {
+              lat = -34.6604;
+              lon = -58.6662;
+            }
+          }
+
+          const forecastRes = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,weather_code,is_day&hourly=temperature_2m,apparent_temperature,weather_code&timezone=auto`
+          );
+          if (!forecastRes.ok) throw new Error("Error al consultar Open-Meteo");
+          const data = await forecastRes.json();
+
+          let targetTemp, targetSensacion, targetCode, esDia, subtituloTexto;
+
+          // Buscar en el pronóstico horario el momento exacto del evento (hasta 7 días adelante)
+          if (data.hourly && data.hourly.time && data.hourly.time.length > 0) {
+            const targetTime = fechaEvento.getTime();
+            let closestIdx = -1;
+            let minDiff = Infinity;
+
+            data.hourly.time.forEach((tStr, idx) => {
+              const itemTime = new Date(tStr).getTime();
+              const diff = Math.abs(itemTime - targetTime);
+              if (diff < minDiff) {
+                minDiff = diff;
+                closestIdx = idx;
+              }
+            });
+
+            // Si el horario del evento coincide dentro del rango pronosticado (margen de 36 hs)
+            if (closestIdx !== -1 && minDiff < 36 * 3600 * 1000) {
+              targetTemp = Math.round(data.hourly.temperature_2m[closestIdx]);
+              targetSensacion = Math.round(data.hourly.apparent_temperature ? data.hourly.apparent_temperature[closestIdx] : targetTemp);
+              targetCode = data.hourly.weather_code[closestIdx];
+              const hora = fechaEvento.getHours();
+              esDia = hora >= 6 && hora < 20;
+              subtituloTexto = `Pronóstico para el evento (${fechaEvento.toLocaleDateString("es-AR", { day: "numeric", month: "short" })}, ${String(hora).padStart(2, "0")}:00 hs)`;
+            }
+          }
+
+          // Si el evento está a más de 7 días pero siempreVisible está en true, mostrar clima actual en tiempo real
+          if (targetTemp === undefined && data.current) {
+            targetTemp = Math.round(data.current.temperature_2m);
+            targetSensacion = Math.round(data.current.apparent_temperature ?? targetTemp);
+            targetCode = data.current.weather_code;
+            esDia = data.current.is_day === 1;
+            subtituloTexto = `Clima actual en ${ciudadNombre} · (Pronóstico del evento disponible 7 días antes)`;
+          }
+
+          if (targetTemp !== undefined) {
+            const infoClima = WMO_CODES[targetCode] || { desc: "Tiempo agradable", iconNoche: "✨", iconDia: "☀️" };
+            const icono = esDia ? infoClima.iconDia : infoClima.iconNoche;
+
+            setTextContent("clima-icono", icono);
+            setTextContent("clima-descripcion", capitalize(infoClima.desc));
+            setTextContent("clima-temp", `${targetTemp}°C`);
+            setTextContent("clima-sensacion", `Sensación: ${targetSensacion}°C`);
+            setTextContent("clima-ciudad", ciudadNombre + (DATOS.clima.provincia ? `, ${DATOS.clima.provincia}` : ""));
+
+            const subEl = document.getElementById("clima-subtitulo");
+            if (subEl && subtituloTexto) subEl.textContent = subtituloTexto;
+
+            showEl("seccion-clima");
+          } else {
+            hideEl("seccion-clima");
+          }
+        } catch (err) {
+          console.warn("No se pudo obtener el pronóstico del tiempo:", err);
+          hideEl("seccion-clima");
+        }
+      }
+
+      consultarClimaReal();
     }
   } else if (climaSection) {
     hideEl("seccion-clima");
@@ -302,15 +427,38 @@ document.addEventListener("DOMContentLoaded", () => {
   rsvpForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    const familiaInput = document.getElementById("rsvp-nombre");
+    const familia = familiaInput ? familiaInput.value.trim() : "";
+    const radioChecked = document.querySelector('input[name="rsvp-asistencia"]:checked');
+    const asistencia = radioChecked ? radioChecked.value : "";
+    const isAsistiendo = asistencia.toLowerCase() === "sí" || asistencia.toLowerCase() === "si";
+    const cantidad = isAsistiendo ? (document.getElementById("rsvp-cantidad")?.value || "1") : "0";
+    const mensaje = document.getElementById("rsvp-mensaje")?.value.trim() || "";
+
+    if (!familia) {
+      if (familiaInput) familiaInput.focus();
+      return;
+    }
+
+    if (!asistencia) {
+      alert("Por favor indicá si confirmás tu asistencia.");
+      return;
+    }
+
     const btn = document.getElementById("rsvp-submit-btn");
     btn.disabled = true;
-    btn.textContent = "Enviando...";
+    btn.textContent = "Guardando respuesta...";
 
     const datos = {
-      nombre: document.getElementById("rsvp-nombre").value.trim(),
-      asistencia: document.querySelector('input[name="rsvp-asistencia"]:checked')?.value || "",
-      cantidadPersonas: document.getElementById("rsvp-cantidad").value,
-      mensaje: document.getElementById("rsvp-mensaje").value.trim(),
+      familia: familia,
+      nombre: familia,
+      asistira: isAsistiendo ? "Sí" : "No",
+      asistencia: isAsistiendo ? "Sí" : "No",
+      cantidad: cantidad,
+      cantidadPersonas: cantidad,
+      mensaje: mensaje,
+      sheetId: DATOS.rsvp.sheetId || "",
+      sheetUrl: DATOS.rsvp.planillaUrl || "",
       timestamp: new Date().toLocaleString("es-AR")
     };
 
@@ -322,23 +470,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await fetch(DATOS.rsvp.googleScriptUrl, {
           method: "POST",
+          mode: "no-cors",
           body: formData
         });
 
+        const rsvpSuccessTexto = document.getElementById("rsvp-success-texto");
+        if (rsvpSuccessTexto) {
+          if (isAsistiendo) {
+            rsvpSuccessTexto.textContent = `¡Respuesta de ${familia} (${cantidad} ${cantidad === "1" ? "persona" : "personas"}) registrada con éxito! Te esperamos para festejar. 🎉`;
+          } else {
+            rsvpSuccessTexto.textContent = `Muchas gracias por avisar, ${familia}. ¡Lamentamos que no puedan estar pero agradecemos tu confirmación! 💌`;
+          }
+        }
+
         rsvpForm.style.display = "none";
         showEl("rsvp-success");
-      } catch {
+      } catch (err) {
+        console.error("Error al enviar RSVP:", err);
         showEl("rsvp-error");
         btn.disabled = false;
-        btn.textContent = "Confirmar asistencia";
+        btn.textContent = "Confirmar respuesta";
       }
     } else {
-      // ── Modo demo (sin backend real) ────────────────────────
-      console.log("📋 RSVP enviado (modo demo):", datos);
+      // ── Modo demo (sin backend configurado todavía) ─────────
+      console.log("📋 RSVP guardado (modo demo - configurar googleScriptUrl en datos.js):", datos);
       setTimeout(() => {
+        const rsvpSuccessTexto = document.getElementById("rsvp-success-texto");
+        if (rsvpSuccessTexto) {
+          if (isAsistiendo) {
+            rsvpSuccessTexto.textContent = `¡Respuesta de ${familia} (${cantidad} ${cantidad === "1" ? "persona" : "personas"}) registrada con éxito! Te esperamos para festejar. 🎉`;
+          } else {
+            rsvpSuccessTexto.textContent = `Muchas gracias por avisar, ${familia}. ¡Lamentamos que no puedan estar pero agradecemos tu confirmación! 💌`;
+          }
+        }
         rsvpForm.style.display = "none";
         showEl("rsvp-success");
-      }, 800);
+      }, 700);
     }
   });
 
@@ -347,7 +514,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const cantidadWrap = document.getElementById("rsvp-cantidad-wrap");
   radios.forEach(radio => {
     radio.addEventListener("change", () => {
-      if (radio.value === "si" && cantidadWrap) {
+      const val = radio.value.toLowerCase();
+      if ((val === "si" || val === "sí") && cantidadWrap) {
         cantidadWrap.style.display = "block";
       } else if (cantidadWrap) {
         cantidadWrap.style.display = "none";
