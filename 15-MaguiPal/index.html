@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ═══════════════════════════════════════════════
+       SEO & Meta — editar en datos.js si es posible,
+       pero los títulos estáticos van aquí:
+  ═══════════════════════════════════════════════ -->
+  <title>Invitación — Fiesta de 15 ✨</title>
+  <meta name="description" content="Estás invitado/a a celebrar una noche mágica y llena de brillo.">
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Open Graph (WhatsApp / redes) -->
+  <meta property="og:title" content="¡Estás invitado/a! — Fiesta de 15 ✨">
+  <meta property="og:description" content="Una noche mágica de Disco Glitter te espera.">
+  <meta property="og:image" content="assets/img/hero_bg.png">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon (puede ser un emoji) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪩</text></svg>">
+
+  <!-- Hoja de estilos -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════════════
+       SPLASH SCREEN — Sobre / Tarjeta de apertura
+       Actúa como "gesto de usuario" para desbloquear audio
+  ════════════════════════════════════════════════════ -->
+  <div id="splash-overlay" role="dialog" aria-modal="true" aria-label="Abrir invitación">
+
+    <!-- Partículas de fondo del splash -->
+    <canvas id="splash-canvas" aria-hidden="true"></canvas>
+
+    <div id="splash-contenido">
+
+      <!-- Texto superior -->
+      <p class="splash-pretitulo" id="splash-pretitulo">Tenés una invitación especial ✨</p>
+
+      <!-- El sobre 3D -->
+      <div id="sobre-wrap" role="button" tabindex="0" aria-label="Tocá para abrir tu invitación">
+        <div id="sobre">
+          <!-- Tapa superior (se dobla hacia atrás) -->
+          <div class="sobre-tapa" aria-hidden="true">
+            <div class="sobre-tapa-inner">
+              <!-- Sello de lacre con inicial -->
+              <div class="sobre-sello" id="sobre-sello-lacre" aria-hidden="true">
+                <span class="sello-inicial" id="sello-letra">M</span>
+              </div>
+            </div>
+          </div>
+          <!-- Cuerpo del sobre -->
+          <div class="sobre-cuerpo" aria-hidden="true">
+            <div class="sobre-lineas">
+              <div class="sobre-linea"></div>
+              <div class="sobre-linea corta"></div>
+            </div>
+          </div>
+        </div>
+        <p class="splash-cta" id="splash-cta">Tocá para abrir tu invitación 💌</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════
+       CANVAS GLITTER (partículas de fondo animadas)
+  ════════════════════════════════════════════════════ -->
+  <canvas id="glitter-canvas" aria-hidden="true"></canvas>
+
+  <!-- ════════════════════════════════════════════════════
+       HERO — Pantalla completa inicial
+  ════════════════════════════════════════════════════ -->
+  <header id="hero" role="banner">
+    <img id="hero-bg-img" src="assets/img/hero_bg.png" alt="Fondo decorativo de fiesta de 15" loading="eager">
+    <div class="hero-overlay" aria-hidden="true"></div>
+
+    <!-- Bola de disco flotante -->
+    <img class="disco-ball-hero" src="assets/img/disco_ball.png" alt="Bola de disco decorativa" aria-hidden="true">
+
+    <div class="hero-contenido">
+      <!-- Línea superior configurable -->
+      <p class="hero-sobre" id="hero-linea-arriba"></p>
+      <!-- Nombre grande central -->
+      <h1 class="hero-nombre" id="hero-nombre">Magui</h1>
+      <!-- Línea inferior configurable (oculta si está vacía) -->
+      <p class="hero-mensaje" id="hero-linea-abajo" style="display:none;"></p>
+      <div class="hero-fecha-badge">
+        <span class="fecha" id="hero-fecha-texto">Sábado 20 de Diciembre de 2026</span>
+        <span class="hora" id="hero-hora-texto">21:00 hs</span>
+      </div>
+    </div>
+
+    <div class="scroll-hint" aria-hidden="true">
+      <span>Deslizá</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ════════════════════════════════════════════════════
+         FOTOS DE LA FESTEJADA — CARRUSEL HORIZONTAL
+    ════════════════════════════════════════════════════ -->
+    <section id="seccion-foto" class="seccion" aria-label="Fotos de la festejada">
+      <div class="wrapper">
+        <div class="carrusel-wrapper" data-animate="fadeIn">
+
+          <!-- Indicador visual de deslizar (Swipe Hint) -->
+          <div class="carrusel-hint" id="carrusel-hint" aria-hidden="true">
+            <span class="hint-arrow hint-arrow-left">‹‹</span>
+            <span class="hint-sparkle">✨</span>
+            <span class="hint-text">Deslizá para ver más fotos</span>
+            <span class="hint-sparkle">✨</span>
+            <span class="hint-arrow hint-arrow-right">››</span>
+          </div>
+
+          <!-- Contenedor del Carrusel con fotos y botones -->
+          <div class="carrusel-container">
+            <!-- Glow ambiental decorativo -->
+            <div class="foto-glow" aria-hidden="true"></div>
+
+            <div class="carrusel-track-wrapper">
+              <!-- Botón Anterior -->
+              <button class="carrusel-btn prev" id="carrusel-btn-prev" aria-label="Foto anterior" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+
+              <!-- Pista deslizable con soporte Touch / Drag / Snap -->
+              <div class="carrusel-track" id="carrusel-track" role="region" aria-roledescription="carrusel" aria-label="Galería de fotos de la festejada" tabindex="0">
+                <div class="carrusel-slide active" data-index="0" role="group" aria-roledescription="slide" aria-label="Foto 1 de 3">
+                  <div class="carrusel-card">
+                    <img id="foto-principal" src="assets/img/foto_1.jpg" alt="Foto de la festejada 1" loading="eager">
+                    <div class="carrusel-sheen" aria-hidden="true"></div>
+                  </div>
+                </div>
+                <div class="carrusel-slide" data-index="1" role="group" aria-roledescription="slide" aria-label="Foto 2 de 3">
+                  <div class="carrusel-card">
+                    <img src="assets/img/foto_2.jpg" alt="Foto de la festejada 2" loading="lazy">
+                    <div class="carrusel-sheen" aria-hidden="true"></div>
+                  </div>
+                </div>
+                <div class="carrusel-slide" data-index="2" role="group" aria-roledescription="slide" aria-label="Foto 3 de 3">
+                  <div class="carrusel-card">
+                    <img src="assets/img/foto_3.jpg" alt="Foto de la festejada 3" loading="lazy">
+                    <div class="carrusel-sheen" aria-hidden="true"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botón Siguiente -->
+              <button class="carrusel-btn next" id="carrusel-btn-next" aria-label="Siguiente foto" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Controles inferiores: Indicadores de puntos y Contador -->
+          <div class="carrusel-nav" id="carrusel-nav" aria-label="Navegación de fotos">
+            <div class="carrusel-dots" id="carrusel-dots" role="tablist" aria-label="Seleccionar foto">
+              <button class="carrusel-dot active" role="tab" aria-selected="true" aria-label="Ir a foto 1" data-index="0"></button>
+              <button class="carrusel-dot" role="tab" aria-selected="false" aria-label="Ir a foto 2" data-index="1"></button>
+              <button class="carrusel-dot" role="tab" aria-selected="false" aria-label="Ir a foto 3" data-index="2"></button>
+            </div>
+            <div class="carrusel-contador" id="carrusel-contador" aria-live="polite">
+              <span id="carrusel-num-actual">1</span> / <span id="carrusel-num-total">3</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════
+         CUENTA REGRESIVA
+    ════════════════════════════════════════════════════ -->
+    <section id="seccion-countdown" class="seccion" aria-label="Cuenta regresiva para el evento">
+      <div class="wrapper">
+        <div class="seccion-titulo" data-animate="fadeUp">
+          <h2>¡Falta poco! ✨</h2>
+          <p class="subtitulo">Cuenta regresiva para la noche más especial</p>
+        </div>
+
+        <div class="countdown-grid" id="countdown-wrap" aria-live="polite" aria-atomic="true" role="timer">
+          <div class="cd-item">
+            <div class="cd-numero" id="cd-dias">00</div>
+            <div class="cd-label">Días</div>
+          </div>
+          <div class="cd-separador" aria-hidden="true">:</div>
+          <div class="cd-item">
+            <div class="cd-numero" id="cd-horas">00</div>
+            <div class="cd-label">Horas</div>
+          </div>
+          <div class="cd-separador" aria-hidden="true">:</div>
+          <div class="cd-item">
+            <div class="cd-numero" id="cd-minutos">00</div>
+            <div class="cd-label">Minutos</div>
+          </div>
+          <div class="cd-separador" aria-hidden="true">:</div>
+          <div class="cd-item">
+            <div class="cd-numero" id="cd-segundos">00</div>
+            <div class="cd-label">Segundos</div>
+          </div>
+        </div>
+        <p id="countdown-mensaje"></p>
+      </div>
+    </section>
+
+    <div class="glitter-divider" aria-hidden="true" data-divider-after="seccion-countdown" data-divider-before="seccion-lugar">
+      <img src="assets/img/glitter_divider.png" alt="">
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         LUGAR Y MAPA
+    ════════════════════════════════════════════════════ -->
+    <section id="seccion-lugar" class="seccion" aria-labelledby="lugar-heading">
+      <div class="wrapper">
+        <div class="seccion-titulo" data-animate="fadeUp">
+          <h2 id="lugar-heading">El Lugar 📍</h2>
+          <p class="subtitulo">Donde la magia cobra vida</p>
+        </div>
+
+        <div class="card" data-animate="fadeUp">
+          <div class="lugar-info">
+            <h3 id="lugar-nombre">Salón El Palacio de los Sueños</h3>
+            <p id="lugar-direccion">Av. Siempreviva 742, Buenos Aires</p>
+          </div>
+
+          <div class="mapa-wrapper">
+            <iframe
+              id="mapa-embed"
+              title="Mapa del salón del evento"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              src="">
+            </iframe>
+          </div>
+
+          <div class="btn-group">
+            <a id="btn-como-llegar" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-dorado">
+              📍 Cómo llegar
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="glitter-divider" aria-hidden="true" data-divider-after="seccion-lugar" data-divider-before="seccion-cronograma">
+      <img src="assets/img/glitter_divider.png" alt="">
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         CRONOGRAMA / PROGRAMA
+    ════════════════════════════════════════════════════ -->
+    <section id="seccion-cronograma" class="seccion" aria-labelledby="cronograma-heading">
+      <div class="wrapper">
+        <div class="seccion-titulo" data-animate="fadeUp">
+          <h2 id="cronograma-heading">La Noche</h2>
+          <p class="subtitulo">Programa del evento</p>
+        </div>
+
+        <!-- El JS inyecta los items aquí dinámicamente desde datos.js -->
+        <div id="timeline-container" role="list" aria-label="Programa de la noche">
+          <!-- Generado por main.js según DATOS.hitos -->
+        </div>
+      </div>
+    </section>
+
+    <div class="glitter-divider" aria-hidden="true" data-divider-after="seccion-cronograma" data-divider-before="seccion-dresscode">
+      <img src="assets/img/glitter_divider.png" alt="">
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         DRESSCODE
+    ════════════════════════════════════════════════════ -->
+    <section id="seccion-dresscode" class="seccion" aria-labelledby="dresscode-heading">
+      <div class="wrapper">
+        <div class="seccion-titulo" data-animate="fadeUp">
+          <h2 id="dresscode-heading">Dresscode</h2>
+          <p class="subtitulo">¡Brillá esta noche!</p>
+        </div>
+
+        <div class="card dresscode-card" data-animate="fadeIn">
+          <h3 id="dresscode-titulo">Dresscode</h3>
+          <p class="dresscode-descripcion" id="dresscode-descripcion">Elegante — Glamour Disco ✨</p>
+          <p class="dresscode-detalle" id="dresscode-detalle">Brillos, lentejuelas y colores vibrantes son bienvenidos.</p>
+
+          <!-- Paleta de colores sugerida o a evitar (generada dinámicamente desde datos.js) -->
+          <div class="paleta-colores" id="paleta-colores" aria-label="Paleta de colores del dresscode"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="glitter-divider" aria-hidden="true" data-divider-after="seccion-dresscode" data-divider-before="seccion-regalos">
+      <img src="assets/img/glitter_divider.png" alt="">
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         CLIMA (visible solo si faltan < 7 días)
+    ════════════════════════════════════════════════════ -->
+    <section id="seccion-clima" class="seccion" style="display:none;" aria-labelledby="clima-heading">
+      <div class="wrapper">
+        <div class="seccion-titulo" data-animate="fadeUp">
+          <h2 id="clima-heading">El Tiempo 🌤</h2>
+          <p class="subtitulo" id="clima-subtitulo">Pronóstico para la noche del evento</p>
+        </div>
+
+        <div class="card clima-card" data-animate="fadeIn">
+          <div id="clima-icono" aria-hidden="true">🌟</div>
+          <div class="clima-info">
+            <h4 id="clima-ciudad">Buenos Aires</h4>
+            <div id="clima-temp">22°C</div>
+            <p id="clima-descripcion">Noche estrellada</p>
+            <p id="clima-sensacion">Sensación: 21°C</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════
+         REGALOS / DATOS BANCARIOS
+    ════════════════════════════════════════════════════ -->
+    <section id="seccion-regalos" class="seccion" aria-labelledby="regalos-heading">
+      <div class="wrapper">
+        <div class="seccion-titulo" data-animate="fadeUp">
+          <h2 id="regalos-heading">Regalos 🎁</h2>
+          <p class="subtitulo">Si querés hacerme un obsequio</p>
+        </div>
+
+        <div class="card" data-animate="fadeIn">
+          <p class="regalo-texto" id="regalos-texto">
+            Tu presencia es el mejor regalo.
+          </p>
+
+          <!-- Alias -->
+          <div class="dato-bancario">
+            <div>
+              <div class="label">Alias MP / CBU</div>
+              <div class="valor" id="regalos-alias">valentina.gomez</div>
+            </div>
+            <button class="btn-copiar" id="btn-copiar-alias" data-copiar="valentina.gomez" aria-label="Copiar alias">
+              Copiar
+            </button>
+          </div>
+
+          <!-- CBU (condicional) -->
+          <div class="dato-bancario" id="regalos-cbu-row">
+            <div>
+              <div class="label">CBU</div>
+              <div class="valor" id="regalos-cbu">0000003100023456789012</div>
+            </div>
+            <button class="btn-copiar" id="btn-copiar-cbu" data-copiar="" aria-label="Copiar CBU">
+              Copiar
+            </button>
+          </div>
+
+          <!-- Banco -->
+          <div class="dato-bancario" style="border:none; padding: 8px 0 0;">
+            <div>
+              <div class="label">Banco</div>
+              <div class="valor" id="regalos-banco">Banco Nación</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="glitter-divider" aria-hidden="true" data-divider-after="seccion-regalos" data-divider-before="seccion-hospedaje">
+      <img src="assets/img/glitter_divider.png" alt="">
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         HOSPEDAJE (oculto por defecto — activar en datos.js)
+    ════════════════════════════════════════════════════ -->
+    <section id="seccion-hospedaje" class="seccion" aria-labelledby="hospedaje-heading">
+      <div class="wrapper">
+        <div class="seccion-titulo" data-animate="fadeUp">
+          <h2 id="hospedaje-heading">Hospedaje 🛎</h2>
+          <p class="subtitulo">Para quienes vienen de lejos</p>
+        </div>
+
+        <div class="card hospedaje-card" data-animate="fadeIn">
+          <div class="hosp-fila">
+            <div class="hosp-icono">🏨</div>
+            <div>
+              <div class="label">Hotel</div>
+              <div class="valor" id="hosp-nombre">Hotel Los Andes</div>
+            </div>
+          </div>
+          <div class="hosp-fila">
+            <div class="hosp-icono">📍</div>
+            <div>
+              <div class="label">Dirección</div>
+              <div class="valor" id="hosp-direccion">Calle Falsa 123</div>
+            </div>
+          </div>
+          <div class="hosp-fila">
+            <div class="hosp-icono">📞</div>
+            <div>
+              <div class="label">Teléfono</div>
+              <div class="valor" id="hosp-telefono">+54 11 1234-5678</div>
+            </div>
+          </div>
+          <div class="hosp-fila">
+            <div class="hosp-icono">💰</div>
+            <div>
+              <div class="label">Precio de referencia</div>
+              <div class="valor" id="hosp-precio">Desde $50.000 / noche</div>
+            </div>
+          </div>
+          <div class="hosp-nota" id="hosp-nota"></div>
+          <div class="btn-group">
+            <a id="hosp-reserva-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+              🔗 Reservar online
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════
+         FORMULARIO RSVP
+    ════════════════════════════════════════════════════ -->
+    <section id="seccion-rsvp" class="seccion" aria-labelledby="rsvp-heading">
+      <div class="wrapper">
+        <div class="seccion-titulo" data-animate="fadeUp">
+          <h2 id="rsvp-heading">¿Venís? 💌</h2>
+          <p class="subtitulo">Confirmá tu asistencia</p>
+        </div>
+
+        <div class="card" data-animate="fadeIn">
+          <div class="rsvp-intro">
+            <p>Por favor confirmá antes del:</p>
+            <span class="fecha-limite" id="rsvp-fecha-limite">10 de Diciembre de 2026</span>
+          </div>
+
+          <form id="rsvp-form" novalidate aria-label="Formulario de confirmación de asistencia">
+
+            <!-- Apellido / Familia -->
+            <div class="form-grupo">
+              <label class="form-label" for="rsvp-nombre">Apellido de la familia (o tu nombre) *</label>
+              <input
+                class="form-input"
+                type="text"
+                id="rsvp-nombre"
+                name="rsvp-nombre"
+                placeholder="Ej: Familia Rodríguez / Pérez"
+                required
+                autocomplete="family-name">
+            </div>
+
+            <!-- Asistencia -->
+            <div class="form-grupo">
+              <label class="form-label">¿Confirmás asistencia? *</label>
+              <div class="radio-grupo" role="radiogroup" aria-required="true">
+                <label class="radio-opcion">
+                  <input type="radio" name="rsvp-asistencia" value="Sí" required>
+                  <span>✅ Sí, asistiremos</span>
+                </label>
+                <label class="radio-opcion">
+                  <input type="radio" name="rsvp-asistencia" value="No">
+                  <span>❌ No podremos asistir</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Cantidad de personas que representa (visible solo si asiste) -->
+            <div class="form-grupo" id="rsvp-cantidad-wrap" style="display:none;">
+              <label class="form-label" for="rsvp-cantidad">Cantidad de personas que representa *</label>
+              <select class="form-select" id="rsvp-cantidad" name="rsvp-cantidad">
+                <option value="1">1 persona</option>
+                <option value="2">2 personas</option>
+                <option value="3">3 personas</option>
+                <option value="4">4 personas</option>
+                <option value="5">5 personas</option>
+                <option value="6">6 personas</option>
+                <option value="7">7 personas</option>
+                <option value="8">8 personas</option>
+                <option value="9">9 personas</option>
+                <option value="10">10 o más personas</option>
+              </select>
+            </div>
+
+            <!-- Mensaje opcional -->
+            <div class="form-grupo">
+              <label class="form-label" for="rsvp-mensaje">Mensaje para la festejada (opcional)</label>
+              <textarea
+                class="form-textarea"
+                id="rsvp-mensaje"
+                name="rsvp-mensaje"
+                placeholder="¡Escribile unas palabras a la festejada! 💕"
+                maxlength="500"></textarea>
+            </div>
+
+            <div class="btn-group">
+              <button type="submit" class="btn btn-dorado" id="rsvp-submit-btn">
+                💌 Confirmar respuesta
+              </button>
+            </div>
+          </form>
+
+	<!-- Mensajes de estado -->
+          <div id="rsvp-success" role="alert" style="display:none;">
+            <span class="success-icon">🎉</span>
+            <h3 id="rsvp-success-titulo">¡Gracias por confirmar!</h3>
+            <p id="rsvp-success-texto">Tu respuesta ya quedó registrada. ¡Muchas gracias!</p>
+
+            <!-- Botón opcional para modificar respuesta por WhatsApp -->
+            <div style="margin-top: 24px;">
+              <a id="btn-modificar-rsvp" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="font-size: 0.85rem;">
+                ✏️ ¿Querés cambiar tu respuesta? Escribinos por WhatsApp
+              </a>
+            </div>
+          </div>
+
+          <div id="rsvp-error" role="alert">
+            <span class="error-icon">😔</span>
+            <h3>Algo salió mal</h3>
+            <p>Por favor intentá de nuevo o contactanos por WhatsApp.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main><!-- /main -->
+
+  <!-- ════════════════════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════════════════ -->
+  <footer role="contentinfo">
+    <div class="wrapper">
+      <span class="footer-nombre" id="hero-nombre-footer">Valentina</span>
+
+      <div class="footer-links">
+        <a id="whatsapp-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp">
+          💬 <span id="whatsapp-texto">¿Consultas? Escribinos</span>
+        </a>
+
+        <span id="instagram-wrap" style="display:none;">
+          <a id="instagram-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram de la festejada">
+            📸 <span id="instagram-link-text">@valentina.quince</span>
+          </a>
+        </span>
+      </div>
+
+      <p class="footer-copy">Invitación digital · Diseño exclusivo ✨</p>
+    </div>
+  </footer>
+
+  <!-- ════════════════════════════════════════════════════
+       REPRODUCTOR DE AUDIO (fixed bottom right)
+  ════════════════════════════════════════════════════ -->
+  <div id="audio-player-wrap" role="region" aria-label="Reproductor de música">
+    <audio id="audio-element" loop preload="none"></audio>
+    <div class="audio-player">
+      <button id="btn-play-pause" aria-label="Reproducir música">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <polygon points="5,3 19,12 5,21"/>
+        </svg>
+      </button>
+      <div class="audio-info">
+        <div class="cancion" id="audio-cancion-nombre">Nuestra canción</div>
+        <div class="artista" id="audio-artista">Artista</div>
+        <div class="audio-progress-bar" aria-hidden="true">
+          <div id="audio-progress"></div>
+        </div>
+        <div class="audio-tiempo">
+          <span id="audio-tiempo-actual">00:00</span> /
+          <span id="audio-tiempo-total">00:00</span>
+        </div>
+      </div>
+      <button id="btn-mute" aria-label="Silenciar música" title="Silenciar">
+        <svg id="icono-volumen" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════
+       BOTÓN VOLVER ARRIBA
+  ════════════════════════════════════════════════════ -->
+  <button id="btn-top" aria-label="Volver al inicio">↑</button>
+
+  <!-- ════════════════════════════════════════════════════
+       SCRIPTS — ORDEN IMPORTANTE:
+       1. datos.js   (configuración, debe ir primero)
+       2. main.js    (lógica que lee datos.js)
+  ════════════════════════════════════════════════════ -->
+  <script src="datos.js"></script>
+  <script src="assets/main.js"></script>
+
+</body>
+</html>
