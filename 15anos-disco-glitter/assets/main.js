@@ -544,9 +544,10 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        // 6. Ocultar el formulario de inputs y mostrar el bloque guardado
+	// 6. Ocultar el formulario de inputs y mostrar el bloque guardado
         if (rsvpFormEl) rsvpFormEl.style.display = "none";
-        showEl("rsvp-success");
+        const rsvpSuccessEl = document.getElementById("rsvp-success");
+        if (rsvpSuccessEl) rsvpSuccessEl.style.display = "block";
       } catch (err) {
         console.warn("Error al leer respuesta previa de RSVP:", err);
       }
@@ -618,7 +619,8 @@ document.addEventListener("DOMContentLoaded", () => {
         guardarYMostrarExito();
       } catch (err) {
         console.error("Error al enviar RSVP:", err);
-        showEl("rsvp-error");
+        const rsvpErrorEl = document.getElementById("rsvp-error");
+        if (rsvpErrorEl) rsvpErrorEl.style.display = "block";
         btn.disabled = false;
         btn.textContent = "Confirmar respuesta";
       }
