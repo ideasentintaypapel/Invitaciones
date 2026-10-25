@@ -497,7 +497,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const rsvpSuccess = document.getElementById("rsvp-success");
   const rsvpError = document.getElementById("rsvp-error");
 
-  // ── Verificar si el usuario ya respondió anteriormente ─────────────
+// ── Verificar si el usuario ya respondió anteriormente ─────────────
   function comprobarRsvpPrevio() {
     const rsvpPrevio = localStorage.getItem("rsvp_confirmado");
     if (rsvpPrevio) {
@@ -534,12 +534,18 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        // 5. Configurar link directo a WhatsApp para el botón
+        // 5. Asignar TEXTO y LINK directo a WhatsApp para el botón
         const btnModificar = document.getElementById("btn-modificar-rsvp");
-        if (btnModificar && DATOS.contacto && DATOS.contacto.whatsapp) {
-          const numWa = DATOS.contacto.whatsapp.replace(/[^0-9]/g, "");
-          const mensajeWa = encodeURIComponent(`Hola! Quisiera modificar mi confirmación de asistencia para los XV de ${DATOS.nombre} (${datosPrevios.familia}).`);
-          btnModificar.href = `https://wa.me/${numWa}?text=${mensajeWa}`;
+        if (btnModificar) {
+          // Asignar el texto explícitamente para evitar que aparezca vacío
+          btnModificar.textContent = "✏️ ¿Querés cambiar tu respuesta? Escribinos por WhatsApp";
+          btnModificar.style.display = "inline-block";
+
+          if (DATOS.contacto && DATOS.contacto.whatsapp) {
+            const numWa = DATOS.contacto.whatsapp.replace(/[^0-9]/g, "");
+            const mensajeWa = encodeURIComponent(`Hola! Quisiera modificar mi confirmación de asistencia para los XV de ${DATOS.nombre} (${datosPrevios.familia}).`);
+            btnModificar.href = `https://wa.me/${numWa}?text=${mensajeWa}`;
+          }
         }
 
         // 6. Ocultar el formulario de inputs y mostrar el bloque guardado
