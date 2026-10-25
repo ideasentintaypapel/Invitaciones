@@ -490,7 +490,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
   //  G. FORMULARIO RSVP
   // ════════════════════════════════════════════════════════════
   const rsvpForm = document.getElementById("rsvp-form");
@@ -532,7 +532,7 @@ document.addEventListener("DOMContentLoaded", () => {
       mensaje: mensaje,
       sheetId: DATOS.rsvp.sheetId || "",
       sheetUrl: DATOS.rsvp.planillaUrl || "",
-      timestamp: new Date().toLocaleString("es-AR")
+      timestamp: new Date().toLocaleString("es-AR", { hour12: false })
     };
 
     if (DATOS.rsvp.googleScriptUrl && DATOS.rsvp.googleScriptUrl.trim() !== "") {
@@ -546,6 +546,13 @@ document.addEventListener("DOMContentLoaded", () => {
           mode: "no-cors",
           body: formData
         });
+
+        // 🟢 PUNTO A: Guardar en localStorage
+        localStorage.setItem("rsvp_confirmado", JSON.stringify({
+          familia: familia,
+          isAsistiendo: isAsistiendo,
+          cantidad: cantidad
+        }));
 
         const rsvpSuccessTexto = document.getElementById("rsvp-success-texto");
         if (rsvpSuccessTexto) {
@@ -568,6 +575,14 @@ document.addEventListener("DOMContentLoaded", () => {
       // ── Modo demo (sin backend configurado todavía) ─────────
       console.log("📋 RSVP guardado (modo demo - configurar googleScriptUrl en datos.js):", datos);
       setTimeout(() => {
+
+        // 🟢 PUNTO A: Guardar en localStorage (modo demo)
+        localStorage.setItem("rsvp_confirmado", JSON.stringify({
+          familia: familia,
+          isAsistiendo: isAsistiendo,
+          cantidad: cantidad
+        }));
+
         const rsvpSuccessTexto = document.getElementById("rsvp-success-texto");
         if (rsvpSuccessTexto) {
           if (isAsistiendo) {
@@ -581,6 +596,57 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 700);
     }
   });
+
+
+  // 🟢 AQUÍ PEGAS EL PUNTO B:
+  // ── Verificar si el usuario ya respondió anteriormente ─────────────
+  function comprobarRsvpPrevio() {
+    const rsvpPrevio = localStorage.getItem("rsvp_confirmado");
+    if (rsvpPrevio) {
+      try {
+        const datosPrevios = JSON.parse(rsvpPrevio);
+        const rsvpFormEl = document.getElementById("rsvp-form");
+        const rsvpHeading = document.getElementById("rsvp-heading");
+        const rsvpSuccessTexto = document.getElementById("rsvp-success-texto");
+
+        if (rsvpHeading) {
+          rsvpHeading.textContent = "¡Gracias por confirmar! 💌";
+        }
+
+        if (rsvpSuccessTexto) {
+          if (datosPrevios.isAsistiendo) {
+            rsvpSuccessTexto.textContent = `¡Ya registramos tu asistencia (${datosPrevios.familia} - ${datosPrevios.cantidad} ${datosPrevios.cantidad === "1" ? "persona" : "personas"})! Te esperamos para festejar. 🎉`;
+          } else {
+            rsvpSuccessTexto.textContent = `Ya registramos tu respuesta (${datosPrevios.familia}). ¡Lamentamos que no puedan estar pero agradecemos tu confirmación! 💌`;
+          }
+        }
+
+        if (rsvpFormEl) rsvpFormEl.style.display = "none";
+        showEl("rsvp-success");
+      } catch (err) {
+        console.warn("Error al leer respuesta previa de RSVP:", err);
+      }
+    }
+  }
+
+  // Ejecutar la comprobación inmediatamente al cargar la página
+  comprobarRsvpPrevio();
+
+
+  // ── Lógica radio buttons RSVP ─────────────────────────────
+  const radios = document.querySelectorAll('input[name="rsvp-asistencia"]');
+  const cantidadWrap = document.getElementById("rsvp-cantidad-wrap");
+  radios.forEach(radio => {
+    radio.addEventListener("change", () => {
+      const val = radio.value.toLowerCase();
+      if ((val === "si" || val === "sí") && cantidadWrap) {
+        cantidadWrap.style.display = "block";
+      } else if (cantidadWrap) {
+        cantidadWrap.style.display = "none";
+      }
+    });
+  });
+
 
   // ── Lógica radio buttons RSVP ─────────────────────────────
   const radios = document.querySelectorAll('input[name="rsvp-asistencia"]');
