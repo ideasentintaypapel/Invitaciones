@@ -534,14 +534,10 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        // 5. Asignar TEXTO y LINK directo a WhatsApp para el botón
-        const btnModificar = document.getElementById("btn-modificar-rsvp");
-        if (btnModificar) {
-          // Asignar el texto explícitamente para evitar que aparezca vacío
-          btnModificar.textContent = "✏️ ¿Querés cambiar tu respuesta? Escribinos por WhatsApp";
-          btnModificar.style.display = "inline-block";
-
-          if (DATOS.contacto && DATOS.contacto.whatsapp) {
+// 5. Asignar LINK directo a WhatsApp para el botón
+              const btnModificar = document.getElementById("btn-modificar-rsvp");
+              if (btnModificar) {
+                if (DATOS.contacto && DATOS.contacto.whatsapp) {
             const numWa = DATOS.contacto.whatsapp.replace(/[^0-9]/g, "");
             const mensajeWa = encodeURIComponent(`Hola! Quisiera modificar mi confirmación de asistencia para los XV de ${DATOS.nombre} (${datosPrevios.familia}).`);
             btnModificar.href = `https://wa.me/${numWa}?text=${mensajeWa}`;
