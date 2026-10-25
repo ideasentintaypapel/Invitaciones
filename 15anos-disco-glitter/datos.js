@@ -122,7 +122,7 @@ lugar: {
     // 🔗 URL de la Aplicación Web de Google Apps Script:
     // (Pegá aquí la URL que te da Google al implementar el Apps Script en la planilla)
     // Dejá en "" para probar en modo demo local sin enviar a la planilla
-    googleScriptUrl: "",
+    googleScriptUrl: "https://script.google.com/macros/s/AKfycbwCp5t0RF7joCVFgjbSe1jXSGOldtxnLdoE4uByQsL1TIBm4Rh625CgpLF1lk94RW_zIw/exec",
 
     fechaLimite: "2026-12-10",                 // Fecha límite para confirmar
     fechaLimiteTexto: "10 de Diciembre de 2026"
