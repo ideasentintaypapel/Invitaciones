@@ -648,20 +648,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
-  // ── Lógica radio buttons RSVP ─────────────────────────────
-  const radios = document.querySelectorAll('input[name="rsvp-asistencia"]');
-  const cantidadWrap = document.getElementById("rsvp-cantidad-wrap");
-  radios.forEach(radio => {
-    radio.addEventListener("change", () => {
-      const val = radio.value.toLowerCase();
-      if ((val === "si" || val === "sí") && cantidadWrap) {
-        cantidadWrap.style.display = "block";
-      } else if (cantidadWrap) {
-        cantidadWrap.style.display = "none";
-      }
-    });
-  });
-
   // ── Copiar al portapapeles ────────────────────────────────
   document.querySelectorAll(".btn-copiar").forEach(btn => {
     btn.addEventListener("click", () => {
