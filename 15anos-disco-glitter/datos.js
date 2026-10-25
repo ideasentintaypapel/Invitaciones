@@ -21,7 +21,13 @@ const DATOS = {
   inicial: "M",                              // Inicial para el sello del sobre
   nombreCompleto: "Magalí Palermo",         // Nombre completo
   edad: 15,                                  // Edad (se usará en "sus N años")
-  mensajePrincipal: "Te invita a celebrar\nsus 15 años",  // Mensaje debajo del nombre
+
+  // ── Texto del Hero (pantalla principal) ──────────────────
+  // lineaArriba: texto pequeño sobre el nombre (dejar "" para ocultar)
+  heroLineaArriba: "Te invito a los XV de",
+  // El nombre grande del centro viene de la propiedad `nombre` de arriba
+  // lineaAbajo: texto cursiva debajo del nombre (dejar "" para ocultar)
+  heroLineaAbajo: "",                       // ← vacío = oculto
 
   // ─────────────────────────────────────────
   //  2. FECHA Y LUGAR DEL EVENTO
@@ -82,7 +88,29 @@ lugar: {
   ],
 
   // ─────────────────────────────────────────
-  //  6. DRESSCODE
+  //  6. DISEÑO — COLOR DE ACENTO
+  // ─────────────────────────────────────────
+  //
+  //  Cambiá el color de acento de toda la invitación eligiendo uno de los
+  //  palettes predefinidos. El valor de `colorAcento` debe ser una de las
+  //  claves de la guía de abajo.
+  //
+  //  ┌─────────────────────────────────────────────────────────────────────┐
+  //  │  GUÍA DE COLORES DISPONIBLES                                        │
+  //  │─────────────────────────────────────────────────────────────────────│
+  //  │  "plateado"  → Plateado / Plata   (#C0C0C0 – #E8E8E8)              │
+  //  │  "dorado"    → Dorado clásico     (#FFD700 – #b8860b)  ← default   │
+  //  │  "rosa"      → Rosa glamour       (#FF69B4 – #C2185B)              │
+  //  │  "celeste"   → Celeste / Aqua     (#7ED6F7 – #1A8FB5)              │
+  //  │  "violeta"   → Violeta / Lila     (#D580FF – #9B27AF)              │
+  //  │  "azul"      → Azul marino        (#5B8DEF – #1A3A8A)              │
+  //  │  "rojo"      → Rojo vibrante      (#FF4D6D – #C1121F)              │
+  //  └─────────────────────────────────────────────────────────────────────┘
+  //
+  colorAcento: "plateado",
+
+  // ─────────────────────────────────────────
+  //  7. DRESSCODE
   // ─────────────────────────────────────────
   dresscode: {
     titulo: "Elegante",
@@ -101,7 +129,7 @@ lugar: {
   },
 
   // ─────────────────────────────────────────
-  //  7. REGALOS / LISTA
+  //  8. REGALOS / LISTA
   // ─────────────────────────────────────────
   regalos: {
     texto: "Tu presencia es el mejor regalo. Si deseas hacerme un obsequio, te comparto mis datos:",
@@ -111,7 +139,7 @@ lugar: {
   },
 
   // ─────────────────────────────────────────
-  //  8. FORMULARIO RSVP (CONFIRMACIÓN DE ASISTENCIA)
+  //  9. FORMULARIO RSVP (CONFIRMACIÓN DE ASISTENCIA)
   // ─────────────────────────────────────────
   rsvp: {
     // 📊 Link de la planilla de Google Sheets que compartirás con tu cliente:
@@ -129,7 +157,7 @@ lugar: {
   },
 
   // ─────────────────────────────────────────
-  //  9. INTERRUPTORES DE SECCIONES (true = visible / false = oculto)
+  //  10. INTERRUPTORES DE SECCIONES (true = visible / false = oculto)
   // ─────────────────────────────────────────
   mostrar: {
     countdown:   true,    // Cuenta regresiva
@@ -143,7 +171,7 @@ lugar: {
   },
 
   // ─────────────────────────────────────────
-  //  10. HOSPEDAJE (solo si mostrar.hospedaje = true)
+  //  11. HOSPEDAJE (solo si mostrar.hospedaje = true)
   // ─────────────────────────────────────────
   hospedaje: {
     nombre: "Hotel Los Andes",
@@ -155,7 +183,7 @@ lugar: {
   },
 
   // ─────────────────────────────────────────
-  //  11. CONTACTO / PIE DE PÁGINA
+  //  12. CONTACTO / PIE DE PÁGINA
   // ─────────────────────────────────────────
   contacto: {
     whatsapp: "+5491112345678",               // Con código de país, sin espacios ni guiones
@@ -164,7 +192,7 @@ lugar: {
   },
 
   // ─────────────────────────────────────────
-  //  12. CLIMA (Pronóstico real automático sin necesidad de API key)
+  //  13. CLIMA (Pronóstico real automático sin necesidad de API key)
   // ─────────────────────────────────────────
   clima: {
     ciudad: "Ituzaingó",                      // Ciudad del evento

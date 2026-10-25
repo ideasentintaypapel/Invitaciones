@@ -82,11 +82,12 @@
     <img class="disco-ball-hero" src="assets/img/disco_ball.png" alt="Bola de disco decorativa" aria-hidden="true">
 
     <div class="hero-contenido">
-      <p class="hero-sobre">
-        <span id="nombre-completo-sobre">Valentina</span> te invita a sus
-      </p>
-      <h1 class="hero-nombre" id="hero-nombre">Valentina</h1>
-      <p class="hero-mensaje" id="hero-mensaje">Te invita a celebrar sus 15 años</p>
+      <!-- Línea superior configurable -->
+      <p class="hero-sobre" id="hero-linea-arriba"></p>
+      <!-- Nombre grande central -->
+      <h1 class="hero-nombre" id="hero-nombre">Magui</h1>
+      <!-- Línea inferior configurable (oculta si está vacía) -->
+      <p class="hero-mensaje" id="hero-linea-abajo" style="display:none;"></p>
       <div class="hero-fecha-badge">
         <span class="fecha" id="hero-fecha-texto">Sábado 20 de Diciembre de 2026</span>
         <span class="hora" id="hero-hora-texto">21:00 hs</span>
@@ -212,7 +213,7 @@
       </div>
     </section>
 
-    <div class="glitter-divider" aria-hidden="true">
+    <div class="glitter-divider" aria-hidden="true" data-divider-after="seccion-countdown" data-divider-before="seccion-lugar">
       <img src="assets/img/glitter_divider.png" alt="">
     </div>
 
@@ -252,7 +253,7 @@
       </div>
     </section>
 
-    <div class="glitter-divider" aria-hidden="true">
+    <div class="glitter-divider" aria-hidden="true" data-divider-after="seccion-lugar" data-divider-before="seccion-cronograma">
       <img src="assets/img/glitter_divider.png" alt="">
     </div>
 
@@ -273,7 +274,7 @@
       </div>
     </section>
 
-    <div class="glitter-divider" aria-hidden="true">
+    <div class="glitter-divider" aria-hidden="true" data-divider-after="seccion-cronograma" data-divider-before="seccion-dresscode">
       <img src="assets/img/glitter_divider.png" alt="">
     </div>
 
@@ -298,7 +299,7 @@
       </div>
     </section>
 
-    <div class="glitter-divider" aria-hidden="true">
+    <div class="glitter-divider" aria-hidden="true" data-divider-after="seccion-dresscode" data-divider-before="seccion-regalos">
       <img src="assets/img/glitter_divider.png" alt="">
     </div>
 
@@ -372,7 +373,7 @@
       </div>
     </section>
 
-    <div class="glitter-divider" aria-hidden="true">
+    <div class="glitter-divider" aria-hidden="true" data-divider-after="seccion-regalos" data-divider-before="seccion-hospedaje">
       <img src="assets/img/glitter_divider.png" alt="">
     </div>
 

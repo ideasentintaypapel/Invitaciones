@@ -21,12 +21,34 @@ document.addEventListener("DOMContentLoaded", () => {
   // ════════════════════════════════════════════════════════════
 
   setTextContent("hero-nombre", DATOS.nombre);
-  setTextContent("hero-mensaje", DATOS.mensajePrincipal.replace(/\n/g, "<br>"), true);
   setTextContent("hero-fecha-texto", DATOS.fechaTexto);
   setTextContent("hero-hora-texto", DATOS.horaTexto);
+
+  // Hero: línea superior
+  const lineaArriba = DATOS.heroLineaArriba || "";
+  const lineaAbajoEl = document.getElementById("hero-linea-abajo");
+  const lineaArribaEl = document.getElementById("hero-linea-arriba");
+  if (lineaArribaEl) {
+    if (lineaArriba.trim() !== "") {
+      lineaArribaEl.textContent = lineaArriba;
+      lineaArribaEl.style.display = "";
+    } else {
+      lineaArribaEl.style.display = "none";
+    }
+  }
+  // Hero: línea inferior
+  const lineaAbajo = DATOS.heroLineaAbajo || "";
+  if (lineaAbajoEl) {
+    if (lineaAbajo.trim() !== "") {
+      lineaAbajoEl.innerHTML = lineaAbajo.replace(/\n/g, "<br>");
+      lineaAbajoEl.style.display = "";
+    } else {
+      lineaAbajoEl.style.display = "none";
+    }
+  }
+
   setTextContent("lugar-nombre", DATOS.lugar.nombre);
   setTextContent("lugar-direccion", DATOS.lugar.direccion);
-  setTextContent("nombre-completo-sobre", `${DATOS.nombre}`);
   setTextContent("hero-nombre-footer", DATOS.nombre);
 
   // Imágenes
@@ -121,6 +143,57 @@ document.addEventListener("DOMContentLoaded", () => {
   Object.entries(secciones).forEach(([key, elId]) => {
     if (!DATOS.mostrar[key]) hideEl(elId);
   });
+
+// Ocultar divisores glitter cuando la sección anterior o posterior está oculta
+  document.querySelectorAll(".glitter-divider[data-divider-before]").forEach(divider => {
+    const afterId  = divider.dataset.dividerAfter;
+    const beforeId = divider.dataset.dividerBefore;
+    const afterEl  = afterId  ? document.getElementById(afterId)  : null;
+    const beforeEl = beforeId ? document.getElementById(beforeId) : null;
+    
+    const afterHidden  = !afterEl  || afterEl.style.display  === "none";
+    const beforeHidden = !beforeEl || beforeEl.style.display === "none";
+    
+    if (afterHidden || beforeHidden) {
+      divider.style.display = "none";
+    } else {
+      divider.style.display = "";
+    }
+  });
+
+  // ── Color de acento ──────────────────────────────────
+  const PALETTES = {
+    dorado:   { main: "#FFD700", light: "#FFF3A3", dark: "#b8860b",
+                gradient: "linear-gradient(135deg, #b8860b, #FFD700, #fffbe6, #FFD700, #b8860b)",
+                cardBorder: "rgba(255,215,0,0.18)", rgb: "255,215,0" },
+    plateado: { main: "#C8C8C8", light: "#F0F0F0", dark: "#888888",
+                gradient: "linear-gradient(135deg, #7a7a7a, #C0C0C0, #F5F5F5, #C0C0C0, #7a7a7a)",
+                cardBorder: "rgba(200,200,200,0.22)", rgb: "192,192,192" },
+    rosa:     { main: "#FF69B4", light: "#FFD6E8", dark: "#C2185B",
+                gradient: "linear-gradient(135deg, #C2185B, #FF69B4, #FFD6E8, #FF69B4, #C2185B)",
+                cardBorder: "rgba(255,105,180,0.22)", rgb: "255,105,180" },
+    celeste:  { main: "#7ED6F7", light: "#D6F2FD", dark: "#1A8FB5",
+                gradient: "linear-gradient(135deg, #1A8FB5, #7ED6F7, #D6F2FD, #7ED6F7, #1A8FB5)",
+                cardBorder: "rgba(126,214,247,0.22)", rgb: "126,214,247" },
+    violeta:  { main: "#D580FF", light: "#EDD6FF", dark: "#9B27AF",
+                gradient: "linear-gradient(135deg, #9B27AF, #D580FF, #EDD6FF, #D580FF, #9B27AF)",
+                cardBorder: "rgba(213,128,255,0.22)", rgb: "213,128,255" },
+    azul:     { main: "#5B8DEF", light: "#C2D5FB", dark: "#1A3A8A",
+                gradient: "linear-gradient(135deg, #1A3A8A, #5B8DEF, #C2D5FB, #5B8DEF, #1A3A8A)",
+                cardBorder: "rgba(91,141,239,0.22)", rgb: "91,141,239" },
+    rojo:     { main: "#FF4D6D", light: "#FFB3C1", dark: "#C1121F",
+                gradient: "linear-gradient(135deg, #C1121F, #FF4D6D, #FFB3C1, #FF4D6D, #C1121F)",
+                cardBorder: "rgba(255,77,109,0.22)", rgb: "255,77,109" }
+  };
+
+  const palette = PALETTES[DATOS.colorAcento] || PALETTES.dorado;
+  const root = document.documentElement;
+  root.style.setProperty("--color-oro",          palette.main);
+  root.style.setProperty("--color-oro-claro",    palette.light);
+  root.style.setProperty("--color-card-border",  palette.cardBorder);
+  root.style.setProperty("--gradiente-dorado",   palette.gradient);
+  root.style.setProperty("--sombra-dorada",      `0 0 24px rgba(${palette.rgb},0.35), 0 0 60px rgba(255,105,180,0.15)`);
+
 
   // ════════════════════════════════════════════════════════════
   //  C. GENERADOR DINÁMICO DEL CRONOGRAMA
