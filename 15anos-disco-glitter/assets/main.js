@@ -497,6 +497,64 @@ document.addEventListener("DOMContentLoaded", () => {
   const rsvpSuccess = document.getElementById("rsvp-success");
   const rsvpError = document.getElementById("rsvp-error");
 
+  // ── Verificar si el usuario ya respondió anteriormente ─────────────
+  function comprobarRsvpPrevio() {
+    const rsvpPrevio = localStorage.getItem("rsvp_confirmado");
+    if (rsvpPrevio) {
+      try {
+        const datosPrevios = JSON.parse(rsvpPrevio);
+        const rsvpFormEl = document.getElementById("rsvp-form");
+        const rsvpHeading = document.getElementById("rsvp-heading");
+        const rsvpSuccessTexto = document.getElementById("rsvp-success-texto");
+        const rsvpIntro = document.querySelector(".rsvp-intro");
+        const seccionRsvp = document.getElementById("seccion-rsvp");
+
+        // 1. Ocultar el subtítulo "CONFIRMÁ TU ASISTENCIA"
+        if (seccionRsvp) {
+          const subtitulo = seccionRsvp.querySelector(".seccion-titulo p");
+          if (subtitulo) subtitulo.style.display = "none";
+        }
+
+        // 2. Cambiar el título principal "¿Venís?"
+        if (rsvpHeading) {
+          rsvpHeading.textContent = "¡Ya confirmaste tu respuesta! 💌";
+        }
+
+        // 3. Ocultar la fecha límite "Por favor confirmá antes del..."
+        if (rsvpIntro) {
+          rsvpIntro.style.display = "none";
+        }
+
+        // 4. Personalizar el texto con el nombre guardado
+        if (rsvpSuccessTexto) {
+          if (datosPrevios.isAsistiendo) {
+            rsvpSuccessTexto.textContent = `¡Ya registramos tu asistencia (${datosPrevios.familia} - ${datosPrevios.cantidad} ${datosPrevios.cantidad === "1" ? "persona" : "personas"})! Te esperamos para festejar. 🎉`;
+          } else {
+            rsvpSuccessTexto.textContent = `Ya registramos tu respuesta (${datosPrevios.familia}). ¡Lamentamos que no puedan estar pero agradecemos tu confirmación! 💌`;
+          }
+        }
+
+        // 5. Configurar link directo a WhatsApp para el botón
+        const btnModificar = document.getElementById("btn-modificar-rsvp");
+        if (btnModificar && DATOS.contacto && DATOS.contacto.whatsapp) {
+          const numWa = DATOS.contacto.whatsapp.replace(/[^0-9]/g, "");
+          const mensajeWa = encodeURIComponent(`Hola! Quisiera modificar mi confirmación de asistencia para los XV de ${DATOS.nombre} (${datosPrevios.familia}).`);
+          btnModificar.href = `https://wa.me/${numWa}?text=${mensajeWa}`;
+        }
+
+        // 6. Ocultar el formulario de inputs y mostrar el bloque guardado
+        if (rsvpFormEl) rsvpFormEl.style.display = "none";
+        showEl("rsvp-success");
+      } catch (err) {
+        console.warn("Error al leer respuesta previa de RSVP:", err);
+      }
+    }
+  }
+
+  // Ejecutar la comprobación inmediatamente al cargar el DOM
+  comprobarRsvpPrevio();
+
+  // ── Listener para el envío del formulario ─────────────────────────────
   rsvpForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -535,8 +593,16 @@ document.addEventListener("DOMContentLoaded", () => {
       timestamp: new Date().toLocaleString("es-AR", { hour12: false })
     };
 
+    const guardarYMostrarExito = () => {
+      localStorage.setItem("rsvp_confirmado", JSON.stringify({
+        familia: familia,
+        isAsistiendo: isAsistiendo,
+        cantidad: cantidad
+      }));
+      comprobarRsvpPrevio();
+    };
+
     if (DATOS.rsvp.googleScriptUrl && DATOS.rsvp.googleScriptUrl.trim() !== "") {
-      // ── Envío real a Google Sheets via Apps Script ──────────
       try {
         const formData = new FormData();
         Object.entries(datos).forEach(([k, v]) => formData.append(k, v));
@@ -547,24 +613,7 @@ document.addEventListener("DOMContentLoaded", () => {
           body: formData
         });
 
-        // 🟢 PUNTO A: Guardar en localStorage
-        localStorage.setItem("rsvp_confirmado", JSON.stringify({
-          familia: familia,
-          isAsistiendo: isAsistiendo,
-          cantidad: cantidad
-        }));
-
-        const rsvpSuccessTexto = document.getElementById("rsvp-success-texto");
-        if (rsvpSuccessTexto) {
-          if (isAsistiendo) {
-            rsvpSuccessTexto.textContent = `¡Respuesta de ${familia} (${cantidad} ${cantidad === "1" ? "persona" : "personas"}) registrada con éxito! Te esperamos para festejar. 🎉`;
-          } else {
-            rsvpSuccessTexto.textContent = `Muchas gracias por avisar, ${familia}. ¡Lamentamos que no puedan estar pero agradecemos tu confirmación! 💌`;
-          }
-        }
-
-        rsvpForm.style.display = "none";
-        showEl("rsvp-success");
+        guardarYMostrarExito();
       } catch (err) {
         console.error("Error al enviar RSVP:", err);
         showEl("rsvp-error");
@@ -572,86 +621,11 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.textContent = "Confirmar respuesta";
       }
     } else {
-      // ── Modo demo (sin backend configurado todavía) ─────────
-      console.log("📋 RSVP guardado (modo demo - configurar googleScriptUrl en datos.js):", datos);
       setTimeout(() => {
-
-        // 🟢 PUNTO A: Guardar en localStorage (modo demo)
-        localStorage.setItem("rsvp_confirmado", JSON.stringify({
-          familia: familia,
-          isAsistiendo: isAsistiendo,
-          cantidad: cantidad
-        }));
-
-        const rsvpSuccessTexto = document.getElementById("rsvp-success-texto");
-        if (rsvpSuccessTexto) {
-          if (isAsistiendo) {
-            rsvpSuccessTexto.textContent = `¡Respuesta de ${familia} (${cantidad} ${cantidad === "1" ? "persona" : "personas"}) registrada con éxito! Te esperamos para festejar. 🎉`;
-          } else {
-            rsvpSuccessTexto.textContent = `Muchas gracias por avisar, ${familia}. ¡Lamentamos que no puedan estar pero agradecemos tu confirmación! 💌`;
-          }
-        }
-        rsvpForm.style.display = "none";
-        showEl("rsvp-success");
+        guardarYMostrarExito();
       }, 700);
     }
   });
-
-
-  // 🟢 AQUÍ PEGAS EL PUNTO B:
-  // ── Verificar si el usuario ya respondió anteriormente ─────────────
-// ── Verificar si el usuario ya respondió anteriormente ─────────────
-  function comprobarRsvpPrevio() {
-    const rsvpPrevio = localStorage.getItem("rsvp_confirmado");
-    if (rsvpPrevio) {
-      try {
-        const datosPrevios = JSON.parse(rsvpPrevio);
-        const rsvpFormEl = document.getElementById("rsvp-form");
-        const rsvpHeading = document.getElementById("rsvp-heading");
-        const rsvpSuccessTexto = document.getElementById("rsvp-success-texto");
-        const rsvpIntro = document.querySelector(".rsvp-intro");
-        const seccionRsvp = document.getElementById("seccion-rsvp");
-
-        // Ocultar el título principal "¿Venís?", el subtítulo y la fecha límite
-        if (seccionRsvp) {
-          const subtitulo = seccionRsvp.querySelector(".seccion-titulo p");
-          if (subtitulo) subtitulo.style.display = "none";
-        }
-        if (rsvpHeading) {
-          rsvpHeading.textContent = "¡Ya confirmaste tu respuesta! 💌";
-        }
-        if (rsvpIntro) {
-          rsvpIntro.style.display = "none";
-        }
-
-        // Personalizar mensaje de confirmación previa
-        if (rsvpSuccessTexto) {
-          if (datosPrevios.isAsistiendo) {
-            rsvpSuccessTexto.textContent = `¡Ya registramos tu asistencia (${datosPrevios.familia} - ${datosPrevios.cantidad} ${datosPrevios.cantidad === "1" ? "persona" : "personas"})! Te esperamos para festejar. 🎉`;
-          } else {
-            rsvpSuccessTexto.textContent = `Ya registramos tu respuesta (${datosPrevios.familia}). ¡Lamentamos que no puedan estar pero agradecemos tu confirmación! 💌`;
-          }
-        }
-
-        // Configurar el enlace de WhatsApp para modificar la respuesta
-        const btnModificar = document.getElementById("btn-modificar-rsvp");
-        if (btnModificar && DATOS.contacto && DATOS.contacto.whatsapp) {
-          const mensajeWa = encodeURIComponent(`Hola! Quisiera modificar mi confirmación de asistencia para los XV de ${DATOS.nombre} (${datosPrevios.familia}).`);
-          btnModificar.href = `https://wa.me/${DATOS.contacto.whatsapp}?text=${mensajeWa}`;
-        }
-
-        // Ocultar el formulario y mostrar el bloque de éxito
-        if (rsvpFormEl) rsvpFormEl.style.display = "none";
-        showEl("rsvp-success");
-      } catch (err) {
-        console.warn("Error al leer respuesta previa de RSVP:", err);
-      }
-    }
-  }
-
-  // Ejecutar la comprobación inmediatamente al cargar la página
-  comprobarRsvpPrevio();
-
 
   // ── Lógica radio buttons RSVP ─────────────────────────────
   const radios = document.querySelectorAll('input[name="rsvp-asistencia"]');
@@ -666,8 +640,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-
-
   // ── Copiar al portapapeles ────────────────────────────────
   document.querySelectorAll(".btn-copiar").forEach(btn => {
     btn.addEventListener("click", () => {
