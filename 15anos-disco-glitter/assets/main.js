@@ -600,6 +600,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 🟢 AQUÍ PEGAS EL PUNTO B:
   // ── Verificar si el usuario ya respondió anteriormente ─────────────
+// ── Verificar si el usuario ya respondió anteriormente ─────────────
   function comprobarRsvpPrevio() {
     const rsvpPrevio = localStorage.getItem("rsvp_confirmado");
     if (rsvpPrevio) {
@@ -608,11 +609,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const rsvpFormEl = document.getElementById("rsvp-form");
         const rsvpHeading = document.getElementById("rsvp-heading");
         const rsvpSuccessTexto = document.getElementById("rsvp-success-texto");
+        const rsvpIntro = document.querySelector(".rsvp-intro");
+        const rsvpSubtitulo = document.querySelector("#seccion-rsvp .subtitulo");
 
+        // Cambiar título principal del bloque
         if (rsvpHeading) {
           rsvpHeading.textContent = "¡Gracias por confirmar! 💌";
         }
 
+        // Ocultar el subtítulo "Confirmá tu asistencia" y la fecha límite de confirmación
+        if (rsvpSubtitulo) rsvpSubtitulo.style.display = "none";
+        if (rsvpIntro) rsvpIntro.style.display = "none";
+
+        // Personalizar mensaje según si asiste o no
         if (rsvpSuccessTexto) {
           if (datosPrevios.isAsistiendo) {
             rsvpSuccessTexto.textContent = `¡Ya registramos tu asistencia (${datosPrevios.familia} - ${datosPrevios.cantidad} ${datosPrevios.cantidad === "1" ? "persona" : "personas"})! Te esperamos para festejar. 🎉`;
@@ -621,6 +630,14 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
+        // Configurar el botón de WhatsApp para modificar la respuesta
+        const btnModificar = document.getElementById("btn-modificar-rsvp");
+        if (btnModificar && DATOS.contacto && DATOS.contacto.whatsapp) {
+          const mensajeWa = encodeURIComponent(`Hola! Quisiera modificar mi confirmación de asistencia para los XV de ${DATOS.nombre} (${datosPrevios.familia}).`);
+          btnModificar.href = `https://wa.me/${DATOS.contacto.whatsapp}?text=${mensajeWa}`;
+        }
+
+        // Ocultar formulario y mostrar cartel de éxito
         if (rsvpFormEl) rsvpFormEl.style.display = "none";
         showEl("rsvp-success");
       } catch (err) {
