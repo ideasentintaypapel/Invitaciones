@@ -186,7 +186,7 @@ lugar: {
   //  12. CONTACTO / PIE DE PÁGINA
   // ─────────────────────────────────────────
   contacto: {
-    whatsapp: "+5491112345678",               // Con código de país, sin espacios ni guiones
+    whatsapp: "+5491131076245",               // Con código de país, sin espacios ni guiones
     whatsappTexto: "¿Consultas? Escribinos",
     instagram: "@valentina.quince"            // Déjalo en "" para ocultar
   },
