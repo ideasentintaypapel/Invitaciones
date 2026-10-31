@@ -68,7 +68,8 @@ lugar: {
     fotos: [                                       // Carrusel horizontal de fotos de la festejada
       "assets/img/foto_1.jpg",
       "assets/img/foto_2.jpg",
-      "assets/img/foto_3.jpg"
+      "assets/img/foto_3.jpg",
+      "assets/img/foto_4.jpg"
     ],
     divisor: "assets/img/glitter_divider.png"     // Divisor decorativo
   },
@@ -115,7 +116,7 @@ lugar: {
   dresscode: {
     titulo: "Elegante",
     descripcion: "Ponete tu mejor outfit para brillar con nosotros en esta noche tan especial. ✨",
-    detalle: "PD: Te pedimos Porfa que evites el [Azul / Blanco / Dorado] 😉",
+    detalle: "PD: Te pedimos Porfa que evites vestidos los colores [Azul / Blanco / Dorado] 😉",
 
     // Bolitas de color de la paleta:
     // Poné `mostrarColores: false` para ocultarlas por completo.
@@ -152,8 +153,8 @@ lugar: {
     // Dejá en "" para probar en modo demo local sin enviar a la planilla
     googleScriptUrl: "https://script.google.com/macros/s/AKfycbwCp5t0RF7joCVFgjbSe1jXSGOldtxnLdoE4uByQsL1TIBm4Rh625CgpLF1lk94RW_zIw/exec",
 
-    fechaLimite: "2026-12-10",                 // Fecha límite para confirmar
-    fechaLimiteTexto: "10 de Diciembre de 2026"
+    fechaLimite: "2026-11-30",                 // Fecha límite para confirmar
+    fechaLimiteTexto: "30 de Noviembre de 2026"
   },
 
   // ─────────────────────────────────────────
@@ -188,7 +189,7 @@ lugar: {
   contacto: {
     whatsapp: "+5491131076245",               // Con código de país, sin espacios ni guiones
     whatsappTexto: "¿Consultas? Escribinos",
-    instagram: "@valentina.quince"            // Déjalo en "" para ocultar
+    instagram: "@magapalermo"            // Déjalo en "" para ocultar
   },
 
   // ─────────────────────────────────────────

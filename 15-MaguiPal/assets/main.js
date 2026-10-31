@@ -1076,7 +1076,27 @@ document.addEventListener("DOMContentLoaded", () => {
       irASlide(currentIndex, false);
     });
 
-    iniciarAutoPlay();
+    let carruselVisible = false;
+const carruselObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      carruselVisible = true;
+      // Si el usuario nunca interactuó manualmente, nos aseguramos que empiece en la primera
+      if (!hasInteracted) {
+        irASlide(0, false);
+      }
+      iniciarAutoPlay();
+    } else {
+      carruselVisible = false;
+      detenerAutoPlay();
+    }
+  });
+}, { threshold: 0.4 }); // Se activa cuando al menos el 40% del carrusel es visible
+
+const seccionFoto = document.getElementById("seccion-foto");
+if (seccionFoto) {
+  carruselObserver.observe(seccionFoto);
+}
   }
 
   // ════════════════════════════════════════════════════════════
