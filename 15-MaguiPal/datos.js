@@ -116,7 +116,7 @@ lugar: {
   dresscode: {
     titulo: "Elegante",
     descripcion: "Ponete tu mejor outfit para brillar con nosotros en esta noche tan especial. ✨",
-    detalle: "PD: Te pedimos Porfa que evites vestidos los colores [Azul / Blanco / Dorado] 😉",
+    detalle: "PD: Te pedimos porfa que evites los vestidos [Azul / Blanco / Dorado] 😉",
 
     // Bolitas de color de la paleta:
     // Poné `mostrarColores: false` para ocultarlas por completo.
