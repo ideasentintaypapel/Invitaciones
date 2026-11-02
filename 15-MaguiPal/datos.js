@@ -37,7 +37,7 @@ const DATOS = {
 
   // Texto de la fecha tal como quieres mostrarlo
   fechaTexto: "Sábado 12 de Diciembre de 2026",
-  horaTexto: "21:00 hs",
+  horaTexto: "21:00 a 05:00 hs",
 
 lugar: {
     nombre: "Quinta La Soñada",
